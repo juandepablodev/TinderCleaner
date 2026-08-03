@@ -18,14 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Select Xcode Version
+      - name: Select Xcode and list simulators
         run: |
-          XCODE_PATH=$(ls -d /Applications/Xcode_16*.app /Applications/Xcode_15*.app /Applications/Xcode.app 2>/dev/null | head -n 1)
-          if [ -n "$XCODE_PATH" ]; then
-            echo "Selecting Xcode at $XCODE_PATH"
-            sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
-          fi
           xcodebuild -version
+          echo "--- Available iPhone Simulators ---"
+          xcrun simctl list devices available | grep -i iphone | head -10
 
       - name: Run Network Guardrail Lint
         run: |
@@ -34,10 +31,15 @@ jobs:
 
       - name: Build and Test (iOS Simulator)
         run: |
+          DEST_DEVICE=$(xcrun simctl list devices available | grep -oE 'iPhone [0-9]+ Pro ' | head -1 | xargs)
+          if [ -z "$DEST_DEVICE" ]; then
+            DEST_DEVICE=$(xcrun simctl list devices available | grep -oE 'iPhone [0-9]+[a-zA-Z ]*' | head -1 | xargs)
+          fi
+          echo "Selected simulator device: $DEST_DEVICE"
           xcodebuild test \
             -project codigo/TinderCleaner.xcodeproj \
             -scheme TinderCleaner \
-            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
+            -destination "platform=iOS Simulator,name=$DEST_DEVICE" \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
