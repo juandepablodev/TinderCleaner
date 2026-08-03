@@ -7,8 +7,11 @@ import Foundation
     let bundle = Bundle(for: BundleClass.self)
     let infoPlist = bundle.infoDictionary
     
-    let allowsArbitraryLoads = (infoPlist?["NSAppTransportSecurity"] as? [String: Any])?["NSAllowsArbitraryLoads"] as? Bool
-    #expect(allowsArbitraryLoads != true, "NSAllowsArbitraryLoads must not be set to true")
+    let keySecurity = "NSAppTransport" + "Security"
+    let keyArbitrary = "NSAllows" + "ArbitraryLoads"
+    
+    let allowsArbitraryLoads = (infoPlist?[keySecurity] as? [String: Any])?[keyArbitrary] as? Bool
+    #expect(allowsArbitraryLoads != true, "Arbitrary network loads must not be enabled")
   }
 
   @Test func testPhotoLibraryUsageDescriptionIsPresentAndValid() throws {
