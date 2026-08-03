@@ -23,6 +23,16 @@
 		A20000012C5000010000000B /* GalleryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C5000010000001B /* GalleryViewModelTests.swift */; };
 		A20000012C5000010000000C /* PhotoLibraryServiceInvariantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C5000010000001C /* PhotoLibraryServiceInvariantTests.swift */; };
 		A20000012C5000010000000D /* GalleryPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C5000010000001D /* GalleryPerformanceTests.swift */; };
+		A30000012C50000100000001 /* SwipeDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000011 /* SwipeDecision.swift */; };
+		A30000012C50000100000002 /* ClassifiedAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000012 /* ClassifiedAsset.swift */; };
+		A30000012C50000100000003 /* SessionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000013 /* SessionResult.swift */; };
+		A30000012C50000100000004 /* VelocityEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000014 /* VelocityEstimator.swift */; };
+		A30000012C50000100000005 /* SwipeEngineViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000015 /* SwipeEngineViewModel.swift */; };
+		A30000012C50000100000006 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000016 /* CardView.swift */; };
+		A30000012C50000100000007 /* CardStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000017 /* CardStackView.swift */; };
+		A30000012C50000100000008 /* ActionBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000018 /* ActionBarView.swift */; };
+		A30000012C50000100000009 /* SwipeEngineContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000019 /* SwipeEngineContainerView.swift */; };
+		A30000012C5000010000000A /* SwipeEngineViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +65,16 @@
 		A20000012C5000010000001B /* GalleryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewModelTests.swift; sourceTree = "<group>"; };
 		A20000012C5000010000001C /* PhotoLibraryServiceInvariantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryServiceInvariantTests.swift; sourceTree = "<group>"; };
 		A20000012C5000010000001D /* GalleryPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryPerformanceTests.swift; sourceTree = "<group>"; };
+		A30000012C50000100000011 /* SwipeDecision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeDecision.swift; sourceTree = "<group>"; };
+		A30000012C50000100000012 /* ClassifiedAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassifiedAsset.swift; sourceTree = "<group>"; };
+		A30000012C50000100000013 /* SessionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionResult.swift; sourceTree = "<group>"; };
+		A30000012C50000100000014 /* VelocityEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VelocityEstimator.swift; sourceTree = "<group>"; };
+		A30000012C50000100000015 /* SwipeEngineViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngineViewModel.swift; sourceTree = "<group>"; };
+		A30000012C50000100000016 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
+		A30000012C50000100000017 /* CardStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStackView.swift; sourceTree = "<group>"; };
+		A30000012C50000100000018 /* ActionBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBarView.swift; sourceTree = "<group>"; };
+		A30000012C50000100000019 /* SwipeEngineContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngineContainerView.swift; sourceTree = "<group>"; };
+		A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngineViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000012C50000100000021 /* Gallery */,
+				A30000012C50000100000020 /* SwipeEngine */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -160,6 +181,46 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		A30000012C50000100000020 /* SwipeEngine */ = {
+			isa = PBXGroup;
+			children = (
+				A30000012C50000100000021 /* Models */,
+				A30000012C50000100000022 /* ViewModels */,
+				A30000012C50000100000023 /* Views */,
+			);
+			path = SwipeEngine;
+			sourceTree = "<group>";
+		};
+		A30000012C50000100000021 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A30000012C50000100000011 /* SwipeDecision.swift */,
+				A30000012C50000100000012 /* ClassifiedAsset.swift */,
+				A30000012C50000100000013 /* SessionResult.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A30000012C50000100000022 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A30000012C50000100000014 /* VelocityEstimator.swift */,
+				A30000012C50000100000015 /* SwipeEngineViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A30000012C50000100000023 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A30000012C50000100000016 /* CardView.swift */,
+				A30000012C50000100000017 /* CardStackView.swift */,
+				A30000012C50000100000018 /* ActionBarView.swift */,
+				A30000012C50000100000019 /* SwipeEngineContainerView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		A10000012C50000100000013 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +234,7 @@
 			children = (
 				A10000012C50000100000014 /* InfrastructureTests */,
 				A20000012C50000100000026 /* GalleryTests */,
+				A30000012C50000100000024 /* SwipeEngineTests */,
 			);
 			path = TinderCleanerTests;
 			sourceTree = "<group>";
@@ -193,6 +255,14 @@
 				A20000012C5000010000001D /* GalleryPerformanceTests.swift */,
 			);
 			path = GalleryTests;
+			sourceTree = "<group>";
+		};
+		A30000012C50000100000024 /* SwipeEngineTests */ = {
+			isa = PBXGroup;
+			children = (
+				A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */,
+			);
+			path = SwipeEngineTests;
 			sourceTree = "<group>";
 		};
 		A10000012C50000100000011 /* Products */ = {
@@ -314,6 +384,15 @@
 				A20000012C50000100000008 /* GalleryGridView.swift in Sources */,
 				A20000012C50000100000009 /* PermissionViews.swift in Sources */,
 				A20000012C5000010000000A /* GalleryContainerView.swift in Sources */,
+				A30000012C50000100000001 /* SwipeDecision.swift in Sources */,
+				A30000012C50000100000002 /* ClassifiedAsset.swift in Sources */,
+				A30000012C50000100000003 /* SessionResult.swift in Sources */,
+				A30000012C50000100000004 /* VelocityEstimator.swift in Sources */,
+				A30000012C50000100000005 /* SwipeEngineViewModel.swift in Sources */,
+				A30000012C50000100000006 /* CardView.swift in Sources */,
+				A30000012C50000100000007 /* CardStackView.swift in Sources */,
+				A30000012C50000100000008 /* ActionBarView.swift in Sources */,
+				A30000012C50000100000009 /* SwipeEngineContainerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,6 +404,7 @@
 				A20000012C5000010000000B /* GalleryViewModelTests.swift in Sources */,
 				A20000012C5000010000000C /* PhotoLibraryServiceInvariantTests.swift in Sources */,
 				A20000012C5000010000000D /* GalleryPerformanceTests.swift in Sources */,
+				A30000012C5000010000000A /* SwipeEngineViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
