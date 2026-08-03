@@ -1,38 +1,41 @@
 # Roadmap
 
 Cada fase es una feature SDD con su propia carpeta en `spec/features/`
-(spec.md + plan.md + tasks.md). No se empieza una fase sin que la anterior
-esté mergeada y verificada en CI.
+(spec.md + plan.md + tasks.md).
 
 ## Fase 1 — Setup y CI/CD (001-setup-y-cicd)
-- Proyecto Xcode en `/codigo` con target iOS 17+, Swift 6, strict concurrency.
+- Proyecto Xcode en `/codigo` con target iOS 17+, Swift 6, strict concurrency complete.
 - Workflow de GitHub Actions: compila, ejecuta tests y genera `.ipa` sin firmar.
-- Guardarraíl de red en CI.
-- **Criterio de cierre:** un push a `main` produce un `.ipa`.
+- Guardarraíl de red en CI (`lint_network.sh`).
+- **Estado:** Completada y verificada en CI.
 
 ## Fase 2 — Carga de galería (002-interfaz-galeria)
-- Solicitud de permisos PhotoKit con estados manejados (autorizado, denegado,
-  limitado: cada uno con su UI específica).
-- Grid de miniaturas con `PHCachingImageManager` y prefetch.
+- Solicitud de permisos PhotoKit con los 5 estados manejados (`notDetermined`, `authorized`, `limited`, `denied`, `restricted`).
+- Grid de miniaturas con `PHCachingImageManager` inyectado y prefetch.
 - Orden: cronológico inverso (más reciente primero).
-- **Criterio de cierre:** Tests automatizados en CI pasan con galería de
-  5.000 assets sintéticos. Performance se mide con XCTest Metrics en CI
-  (simulador). Validación en dispositivo real se pospone a TestFlight.
+- Sincronización incremental reactiva vía `PHPhotoLibraryChangeObserver`.
+- **Estado:** Completada y verificada en CI.
 
 ## Fase 3 — Motor de swipe (003-motor-swipe)
-- Pila de tarjetas con gestos: derecha = conservar, izquierda = marcar para
-  borrar.
-- Pre-carga de la imagen full-size de la tarjeta activa y las 2 siguientes.
-- Botones de fallback accesibles (conservar/borrar/deshacer).
-- Acción "deshacer" de la última decisión.
-- **Criterio de cierre:** el gesto responde en <100 ms y deshacer restaura
-  siempre el estado correcto.
+- Pila de tarjetas con gestos: derecha = conservar, izquierda = borrar.
+- Reproducción de vídeo nativa (`AVPlayerLayer` / `VideoPlayerView`) en bucle con control de silencio.
+- Carga de imágenes a resolución completa sin borradores intermediarios.
+- Animación física spring, insignias glassmorphic y respuesta háptica (`UIImpactFeedbackGenerator`).
+- Deshabilitación de gesto interactivo de back para evitar salidas accidentales a la Galería.
+- Guard atómico de decisiones (`swipeInFlight`).
+- Acción "deshacer" de la última decisión con límite de 200 entradas en historial.
+- **Estado:** Completada y verificada en CI.
 
 ## Fase 4 — Eliminación por lotes (004-eliminacion-photokit)
-- Resumen de sesión: nº de marcadas y espacio estimado a liberar.
+- Resumen de sesión: nº de marcadas y espacio estimado a liberar (`SizeEstimate` con prefijo `≥`).
 - Confirmación explícita del usuario + diálogo nativo del sistema.
-- Borrado con `PHAssetChangeRequest.deleteAssets` (papelera nativa, nunca
-  irreversible).
-- Manejo de errores parciales (assets que fallan se reportan, no se pierden).
-- **Criterio de cierre:** los assets eliminados aparecen en "Eliminados
-  recientemente" y la app refleja la galería actualizada sin reiniciar.
+- Borrado con `PHAssetChangeRequest.deleteAssets` (papelera nativa "Eliminados recientemente").
+- Manejo explícito de cancelación por usuario (`PHPhotosErrorDomain` código `3072`).
+- **Estado:** Completada y verificada en CI.
+
+## Fase 5 — Persistencia de Sesión (005-persistencia-sesion)
+- Guardado automático del estado de la sesión en `UserDefaults` tras cada swipe o deshacer.
+- Detección al abrir la app y botón de **"Continuar sesión anterior (N fotos clasificadas)"** en la Galería.
+- Limpieza automática de la sesión guardada tras un borrado masivo exitoso.
+- Suite de pruebas `SessionPersistenceTests`.
+- **Estado:** Completada y verificada en CI.

@@ -119,7 +119,11 @@ TinderCleaner/
 │       │   ├── spec.md
 │       │   ├── plan.md
 │       │   └── tasks.md
-│       └── 004-eliminacion-photokit/
+│       ├── 004-eliminacion-photokit/
+│       │   ├── spec.md
+│       │   ├── plan.md
+│       │   └── tasks.md
+│       └── 005-persistencia-sesion/
 │           ├── spec.md
 │           ├── plan.md
 │           └── tasks.md

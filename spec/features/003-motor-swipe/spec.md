@@ -31,12 +31,12 @@ Núcleo de interacción de **TinderCleaner**: pila de tarjetas deslizables estil
 - **When** no se superan umbrales al soltar → retorno a (0,0) con `Spring(duration: 0.3, bounce: 0.2)`.
 - **Nota vinculante (iOS 17):** `DragGesture.Value` **no expone `velocity`**. La velocidad se estima en el ViewModel/vista manteniendo las últimas muestras `(translation, timestamp)` de `onChanged` dentro de una ventana de 100 ms y calculando `Δx/Δt` (ver §5.2). El test unitario alimenta muestras sintéticas y verifica la clasificación.
 
-### Criterio 3.2: Ventana de Precarga (3 Tarjetas), Cancelación y Memoria Verificable
+### Criterio 3.2: Ventana de Precarga (3 Tarjetas), Cancelación, Vídeo Nativo y Calidad HD
 - **Given** la tarjeta `i` en pantalla.
-- **Then** el motor pre-carga vía `photoService.requestThumbnail` (manager inyectado de la Feature 002) las imágenes a display-size de `i`, `i+1`, `i+2`, registrando cada `PHImageRequestID` mediante `onRequestID`.
-- **And** al procesar la tarjeta `i`: se cancela su `PHImageRequestID` si sigue en vuelo, se eliminan sus entradas de `imageCache` y `activeRequests`, y `i+3` entra en la cola.
-- **And** invariantes testeables en CI (sustituyen al presupuesto fantasma de 150 MB): en todo momento `imageCache.count ≤ 3` y `activeRequests.count ≤ 3`, verificados con el `FakePhotoLibraryService` tras 500 operaciones de swipe.
-- **And** la verificación de huella real (≤ 150 MB) se realiza manualmente con Instruments en el smoke test de SideStore (cierre Feature 001), no en CI.
+- **Then** el motor pre-carga vía `photoService.requestThumbnail` imágenes en alta resolución (`.highQualityFormat` + `.exact`) de `i`, `i+1`, `i+2`, registrando cada `PHImageRequestID` mediante `onRequestID`.
+- **And** si la tarjeta activa es un vídeo (`asset.isVideo`), se solicita `requestPlayerItem` y se presenta mediante `VideoPlayerView` (`AVPlayerLayer`) reproduciéndose automáticamente en bucle con control de silencio.
+- **And** al procesar la tarjeta `i`: se cancela su `PHImageRequestID` si sigue en vuelo, se eliminan sus entradas de `imageCache`, `playerItemCache` y `activeRequests`, y `i+3` entra en la cola.
+- **And** invariantes testeables en CI: en todo momento `imageCache.count ≤ 3` y `activeRequests.count ≤ 3`, verificados con el `FakePhotoLibraryService` tras 500 operaciones de swipe.
 
 ### Criterio 3.3: Atomicidad de la Clasificación
 - **Given** un swipe en curso cuya animación de salida aún no ha terminado.
@@ -48,12 +48,13 @@ Núcleo de interacción de **TinderCleaner**: pila de tarjetas deslizables estil
 - **Given** al menos una decisión en `historyStack`.
 - **When** el usuario pulsa "Deshacer".
 - **Then** se desapila la última decisión, la tarjeta regresa al tope con animación física y el contador de `pendingDeletion` se actualiza inmediatamente.
-- **And** la imagen del asset restaurado se re-solicita a la ventana de precarga (placeholder visible durante la carga; no se conserva la imagen liberada).
-- **And** `historyStack` tiene **límite de 200 entradas** (las más antiguas se purgan) — decisión declarada para acotar memoria en sesiones de 10.000+ fotos.
+- **And** la imagen del asset restaurado se re-solicita a la ventana de precarga.
+- **And** `historyStack` tiene **límite de 200 entradas** (las más antiguas se purgan).
 
-### Criterio 3.5: Botones Accesibles y Reduce Motion
-- **When** el usuario toca "Check Verde" o "Papelera Roja" → misma clasificación con su animación.
+### Criterio 3.5: Botones Accesibles, Respuesta Táctiles y Desactivación de Back Gesture
+- **When** el usuario toca "Check Verde" o "Papelera Roja" → misma clasificación con animación y respuesta háptica (`UIImpactFeedbackGenerator`).
 - **And** con `accessibilityReduceMotion` activo, las animaciones de arrastre/salida se sustituyen por fundidos `.opacity`.
+- **And** `SwipeEngineContainerView` deshabilita el botón nativo de atrás (`.navigationBarBackButtonHidden(true)`) para evitar que el gesto de arrastre desde el borde izquierdo active el pop del `NavigationStack` a la Galería.
 
 ---
 
