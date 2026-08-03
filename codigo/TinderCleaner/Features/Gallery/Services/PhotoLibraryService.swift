@@ -80,7 +80,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
           options: options
         ) { image, info in
           let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
-          let isCancelled = (info?[PHImageResultIsCancelledKey] as? Bool) ?? false
+          let isCancelled = (info?[PHImageCancelledKey] as? Bool) ?? false
           let isError = info?[PHImageErrorKey] != nil
           
           let isFinal = !isDegraded || image != nil || isCancelled || isError
