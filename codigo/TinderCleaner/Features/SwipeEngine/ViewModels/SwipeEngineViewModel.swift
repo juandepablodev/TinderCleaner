@@ -95,19 +95,25 @@ public final class SwipeEngineViewModel {
 
     // Request thumbnails for missing items in the window
     for asset in window where imageCache[asset.id] == nil && activeRequests[asset.id] == nil {
-      Task {
+      let assetID = asset.id
+      let size = displayTargetSize
+      Task { [weak self, photoService] in
         let image = await photoService.requestThumbnail(
           for: asset,
-          targetSize: displayTargetSize
-        ) { [weak self] requestID in
-          Task { @MainActor in
-            self?.activeRequests[asset.id] = requestID
+          targetSize: size,
+          onRequestID: { requestID in
+            Task { @MainActor [weak self] in
+              self?.activeRequests[assetID] = requestID
+            }
           }
-        }
+        )
         
-        self.activeRequests.removeValue(forKey: asset.id)
-        if let image {
-          self.imageCache[asset.id] = image
+        await MainActor.run { [weak self] in
+          guard let self else { return }
+          self.activeRequests.removeValue(forKey: assetID)
+          if let image {
+            self.imageCache[assetID] = image
+          }
         }
       }
     }

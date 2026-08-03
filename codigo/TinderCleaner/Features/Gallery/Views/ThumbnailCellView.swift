@@ -7,7 +7,6 @@ struct ThumbnailCellView: View {
   let targetSize: CGSize
 
   @State private var image: UIImage? = nil
-  @State private var requestID: PHImageRequestID? = nil
 
   var body: some View {
     ZStack(alignment: .bottomTrailing) {
@@ -44,19 +43,10 @@ struct ThumbnailCellView: View {
     .task(id: asset.id) {
       let loadedImage = await viewModel.requestThumbnail(
         for: asset,
-        targetSize: targetSize
-      ) { reqID in
-        Task { @MainActor in
-          self.requestID = reqID
-        }
-      }
+        targetSize: targetSize,
+        onRequestID: { _ in }
+      )
       self.image = loadedImage
-    }
-    .onDisappear {
-      if let reqID = requestID {
-        viewModel.cancelThumbnailRequest(reqID)
-        requestID = nil
-      }
     }
   }
 }

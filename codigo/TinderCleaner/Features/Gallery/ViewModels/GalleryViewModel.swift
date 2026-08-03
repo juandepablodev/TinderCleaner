@@ -104,11 +104,10 @@ public final class GalleryViewModel {
   private func startObservingChanges() {
     changeTask?.cancel()
     let stream = photoService.changeStream()
-    changeTask = Task { [photoService] in
+    changeTask = Task { [weak self] in
       for await change in stream {
-        await MainActor.run { [weak self] in
-          self?.apply(change)
-        }
+        guard let self else { break }
+        self.apply(change)
       }
     }
   }

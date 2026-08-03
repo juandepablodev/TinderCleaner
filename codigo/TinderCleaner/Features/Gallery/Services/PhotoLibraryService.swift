@@ -69,7 +69,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
     options.resizeMode = .fast
     options.isSynchronous = false
 
-    nonisolated(unsafe) var currentRequestID: PHImageRequestID?
+    let state = RequestState()
 
     return await withTaskCancellationHandler {
       await withCheckedContinuation { continuation in
@@ -80,15 +80,19 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
           options: options
         ) { image, info in
           let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
-          if !isDegraded || image != nil {
-            continuation.resume(returning: image)
+          let isCancelled = (info?[PHImageResultCancelledKey] as? Bool) ?? false
+          let isError = info?[PHImageErrorKey] != nil
+          
+          let isFinal = !isDegraded || image != nil || isCancelled || isError
+          if isFinal {
+            state.resumeOnce(continuation: continuation, image: image)
           }
         }
-        currentRequestID = reqID
+        state.setRequestID(reqID)
         onRequestID(reqID)
       }
     } onCancel: {
-      if let reqID = currentRequestID {
+      if let reqID = state.getRequestID() {
         imageManager.cancelImageRequest(reqID)
       }
     }
@@ -190,3 +194,35 @@ private extension PHAsset {
     )
   }
 }
+
+private final class RequestState: @unchecked Sendable {
+  private let lock = NSLock()
+  private var requestID: PHImageRequestID?
+  private var hasResumed = false
+
+  func setRequestID(_ id: PHImageRequestID) {
+    lock.lock()
+    defer { lock.unlock() }
+    requestID = id
+  }
+
+  func getRequestID() -> PHImageRequestID? {
+    lock.lock()
+    defer { lock.unlock() }
+    return requestID
+  }
+
+  func resumeOnce(continuation: CheckedContinuation<UIImage?, Never>, image: UIImage?) {
+    lock.lock()
+    let alreadyResumed = hasResumed
+    if !alreadyResumed {
+      hasResumed = true
+    }
+    lock.unlock()
+
+    if !alreadyResumed {
+      continuation.resume(returning: image)
+    }
+  }
+}
+
