@@ -23,7 +23,7 @@ struct ActionBarView: View {
       // Delete Button (Trash)
       Button(action: onDelete) {
         Image(systemName: "trash.fill")
-          .font(.title1.bold())
+          .font(.title.bold())
           .foregroundStyle(.red)
           .frame(width: 68, height: 68)
           .background(Color.red.opacity(0.15))
@@ -35,7 +35,7 @@ struct ActionBarView: View {
       // Keep Button (Checkmark)
       Button(action: onKeep) {
         Image(systemName: "checkmark")
-          .font(.title1.bold())
+          .font(.title.bold())
           .foregroundStyle(.green)
           .frame(width: 68, height: 68)
           .background(Color.green.opacity(0.15))
