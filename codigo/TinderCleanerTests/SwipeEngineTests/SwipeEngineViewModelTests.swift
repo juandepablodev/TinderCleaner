@@ -56,29 +56,31 @@ import Photos
     #expect(await viewModel.remainingAssets.first?.id == "synthetic-asset-0")
   }
 
-  @Test func testMemoryInvariantsCountBoundedToThree() async throws {
+  @MainActor
+  @Test func testMemoryInvariantsCountBoundedToThree() throws {
     let fakeService = FakePhotoLibraryService(authorizationStatus: .authorized, assetCount: 500)
     let assets = fakeService.mockAssets
-    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
+    let viewModel = SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
 
     for _ in 0..<500 {
-      await viewModel.processDecision(.keep)
-      await viewModel.swipeAnimationCompleted()
+      viewModel.processDecision(.keep)
+      viewModel.swipeAnimationCompleted()
     }
 
-    #expect(await viewModel.imageCache.count <= 3, "imageCache.count must not exceed 3")
-    #expect(await viewModel.activeRequests.count <= 3, "activeRequests.count must not exceed 3")
+    #expect(viewModel.imageCache.count <= 3, "imageCache.count must not exceed 3")
+    #expect(viewModel.activeRequests.count <= 3, "activeRequests.count must not exceed 3")
   }
 
-  @Test func testPerformance100SwipesUnder1s() async throws {
+  @MainActor
+  @Test func testPerformance100SwipesUnder1s() throws {
     let fakeService = FakePhotoLibraryService(authorizationStatus: .authorized, assetCount: 100)
     let assets = fakeService.mockAssets
-    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
+    let viewModel = SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
 
     let startTime = Date()
     for _ in 0..<100 {
-      await viewModel.processDecision(.delete)
-      await viewModel.swipeAnimationCompleted()
+      viewModel.processDecision(.delete)
+      viewModel.swipeAnimationCompleted()
     }
     let duration = Date().timeIntervalSince(startTime)
 
