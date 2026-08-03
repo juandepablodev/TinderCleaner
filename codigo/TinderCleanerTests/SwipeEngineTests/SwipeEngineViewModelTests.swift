@@ -8,7 +8,7 @@ import Photos
   @Test func testProcessDecisionAdvancesQueueAndUpdatesHistory() async throws {
     let fakeService = FakePhotoLibraryService(authorizationStatus: .authorized, assetCount: 10)
     let assets = fakeService.mockAssets
-    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService)
+    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
 
     #expect(await viewModel.remainingAssets.count == 10)
     #expect(await viewModel.historyStack.isEmpty)
@@ -25,7 +25,7 @@ import Photos
   @Test func testAtomicGuardBlocksOverlappingDecisions() async throws {
     let fakeService = FakePhotoLibraryService(authorizationStatus: .authorized, assetCount: 10)
     let assets = fakeService.mockAssets
-    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService)
+    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
 
     // First call sets swipeInFlight = true
     await viewModel.processDecision(.delete)
@@ -42,7 +42,7 @@ import Photos
   @Test func testUndoLastDecisionRestoresAssetToTop() async throws {
     let fakeService = FakePhotoLibraryService(authorizationStatus: .authorized, assetCount: 5)
     let assets = fakeService.mockAssets
-    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService)
+    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
 
     await viewModel.processDecision(.delete)
     await viewModel.swipeAnimationCompleted()
@@ -59,7 +59,7 @@ import Photos
   @Test func testMemoryInvariantsCountBoundedToThree() async throws {
     let fakeService = FakePhotoLibraryService(authorizationStatus: .authorized, assetCount: 500)
     let assets = fakeService.mockAssets
-    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService)
+    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
 
     for _ in 0..<500 {
       await viewModel.processDecision(.keep)
@@ -73,7 +73,7 @@ import Photos
   @Test func testPerformance100SwipesUnder1s() async throws {
     let fakeService = FakePhotoLibraryService(authorizationStatus: .authorized, assetCount: 100)
     let assets = fakeService.mockAssets
-    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService)
+    let viewModel = await SwipeEngineViewModel(assets: assets, photoService: fakeService, persistenceService: FakeSessionPersistenceService())
 
     let startTime = Date()
     for _ in 0..<100 {
