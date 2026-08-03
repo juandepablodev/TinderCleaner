@@ -34,8 +34,7 @@
 
 ## CI/CD
 - GitHub Actions con runners `macos-latest`.
-- Workflow: compilar, testear y generar `.ipa` firmado con certificados en
-  GitHub Secrets.
+- Workflow: compilar, testear y generar `.ipa` sin firma (unsigned) en las Fases 1 a 4 (la firma con certificados en GitHub Secrets se contempla únicamente para distribución final).
 - Guardarraíl: paso de lint que falla si detecta `URLSession` o imports de
   red (refuerzo de las prohibiciones de AGENTS.md).
 

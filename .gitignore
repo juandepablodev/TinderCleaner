@@ -1,0 +1,25 @@
+# Xcode
+.DS_Store
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+
+# App signing and secrets
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+GoogleService-Info.plist
+
+# App artefacts
+*.ipa
+*.dSYM.zip

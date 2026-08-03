@@ -5,11 +5,15 @@
 > línea. Si algo aquí contradice tu intuición, gana este archivo.
 
 ## 1. Stack Tecnológico
-- Lenguaje: Swift 6.x (strict concurrency habilitado cuando sea posible).
+- Lenguaje: Swift 6.x con strict concurrency habilitado.
+  Cualquier excepción temporal debe justificarse en la spec y dejar una tarea
+  explícita para eliminarla.
 - Interfaz: SwiftUI (UIKit solo mediante `UIViewRepresentable` si un control
   nativo no existe en SwiftUI, justificándolo en la spec).
-- Frameworks nativos: PhotoKit (gestión de galería), Combine/Swift Concurrency.
-- Persistencia: SwiftData o ficheros en el sandbox de la app (sin backends).
+- Frameworks nativos: PhotoKit (gestión de galería), Observation y Swift Concurrency.
+- Persistencia v1: estado de sesión solo en memoria y preferencias mínimas en
+  `UserDefaults`. SwiftData, bases de datos y ficheros propios están fuera de
+  alcance salvo aprobación explícita en una spec.
 - Target: iOS 17+ (ajustar según la spec vigente).
 - IDE: VS Code / Antigravity (solo edición de código, sin build local).
 - Build: GitHub Actions (macos-latest) - ÚNICO entorno de compilación.
@@ -41,8 +45,10 @@
   - Usar `PHCachingImageManager` con `startCachingImages`/`stopCachingImages`,
     nunca cargar imágenes full-size en colecciones.
   - Miniaturas con `targetSize` explícito; full-size solo bajo demanda.
-  - Evitar retain cycles: `[weak self]` en closures que capturen self,
-    y cancelar `PHImageRequestID` en `onDisappear`/deinit.
+  - Toda petición de imagen debe conservar su `PHImageRequestID` y cancelarse con
+  `PHImageManager.cancelImageRequest(_:)` cuando la vista o tarea deje de
+  necesitarla. Usar `[weak self]` solo cuando una closure de larga vida retenga
+  a `self`; no aplicarlo mecánicamente.
   - Responder a `PHPhotoLibraryChangeObserver` para mantener el fetch
     actualizado sin recargar todo.
 - Estilo de código: indentación de 2 espacios, nombres en inglés, comentarios solo
@@ -67,9 +73,14 @@ El desarrollo se rige por Spec-Driven Development (SDD):
   spec primero.
 - Si el código y la spec divergen, se corrige la spec o el código, pero
   ambos deben quedar alineados antes de mergear.
-- Las verificaciones de performance y memoria se hacen SOLO en CI.
-- Los criterios de cierre deben ser verificables en GitHub Actions.
-- Fase 2: "60 fps con 5.000 fotos" se verifica con tests automatizados en simulador CI.
+- Los criterios funcionales, unitarios e integración deben ser verificables en
+  GitHub Actions.
+- El CI puede detectar regresiones de rendimiento mediante métricas
+  automatizadas, pero no certifica 60 fps, consumo de memoria real ni el
+  comportamiento de PhotoKit en un dispositivo físico.
+- La validación de rendimiento real, memoria y experiencia táctil queda
+  bloqueada como requisito previo a una beta pública o publicación en App Store,
+  cuando exista acceso a un iPhone físico y macOS.
 
 Estructura de carpetas:
 TinderPhoto/
@@ -119,29 +130,51 @@ TinderPhoto/
 └── skills-lock.json                     ← Registro de skills y versiones instaladas
 
 ## 6. Testing
-- Framework: Swift Testing (`@Test`, `#expect`). XCTest solo para UI tests.
-- Todo nuevo ViewModel/servicio con lógica no trivial lleva tests.
-- Testea comportamiento, no implementación interna.
-- Mockea PhotoKit detrás de un protocolo para que los tests no toquen
-  la galería real.
-- Ejecuta los tests antes de cualquier PR.
+- Framework principal: Swift Testing (`@Test`, `#expect`) para tests unitarios
+  e integración. XCTest/XCUITest solo para pruebas de interfaz.
+- Todo nuevo ViewModel, servicio o lógica de dominio no trivial debe incluir
+  tests automatizados.
+- Testear comportamiento observable y criterios de aceptación; no detalles de
+  implementación interna.
+- Aislar PhotoKit tras protocolos e inyectar fakes o mocks en los tests:
+  los tests no deben acceder a la fototeca real del simulador.
+- El entorno local es Windows: no se ejecutan builds ni tests localmente.
+- GitHub Actions es la fuente de verdad de compilación y testing. Todo cambio
+  debe hacer `push` a una rama y el workflow debe ejecutar los tests con
+  `xcodebuild test` en un simulador iOS.
+- Un PR solo puede mergearse a `main` si el job de build y tests de GitHub
+  Actions termina correctamente.
+- El workflow debe subir `TestResults.xcresult` como artefacto siempre
+  (`if: always()`), incluso cuando fallen los tests, para facilitar el
+  diagnóstico remoto.
+- Para la Fase 2, usar fakes de `PHAsset`/PhotoKit para validar paginación,
+  orden, estados de permisos y gestión de caché lógica; el rendimiento real
+  y el uso de memoria en un iPhone físico quedan pendientes de validación
+  manual antes de publicar.
 
 ## 7. Estilo de Commits y CI/CD
 - Commits en formato Conventional Commits: `feat:`, `fix:`, `refactor:`,
   `test:`, `docs:`, `chore:` — mensajes en inglés, imperativo.
 - Todo código que pase a `main` debe compilar Y pasar los tests.
 - `.github/workflows/build.yml` debe compilar el proyecto y generar un
-  `.ipa` con los certificados de distribución configurados (secrets de
-  GitHub, nunca certificados en el repo).
+  `.ipa` sin firma.
 - El CI debe incluir un paso de lint que falle si se detecta `URLSession`
   o imports de frameworks de red (guardarraíl de la sección 2).
+- Aunque el runner sea `macos-latest`, el workflow debe seleccionar una versión
+  explícita de Xcode con `xcode-select` y registrar `xcodebuild -version`.
 
 ## 8. Skills del agente
-El agente debe aplicar el conocimiento de estas skills durante el desarrollo:
-- photokit: caché, permisos, borrado, sincronización de galería
-- ios-swift-development: Swift 6, strict concurrency, @Observable, MVVM
-- swiftui-animation: gestos swipe, spring animations, transiciones
-- mobile-ios-design: mejora del diseño de la ui adaptada para iphone
-- swiftui-animatiion: mejora las animaciones de la app
-- github-actions-ios: workflows macos-latest, xcodebuild headless,
-  XCTest en CI, firma con secrets, diagnóstico de logs de CI
+Aplicar estas skills cuando sean relevantes para la tarea:
+
+- github-actions: workflows, secretos, artefactos, diagnóstico de CI y
+  automatización en GitHub Actions.
+- ios-swift-development: Swift 6, concurrencia estructurada, `@Observable`,
+  MVVM y convenciones de código.
+- mobile-ios-design: Human Interface Guidelines, interfaz nativa de iPhone,
+  jerarquía visual, feedback y áreas táctiles.
+- photokit: permisos, caché, `PHAsset`, `PHCachingImageManager`,
+  observación de cambios y eliminación por lotes.
+- swiftui-animation: `DragGesture`, animaciones spring, transiciones y
+  feedback visual del motor de swipe.
+- swiftui-performance: actualización de vistas, layout, rendering y
+  prevención de regresiones de rendimiento.
