@@ -33,6 +33,17 @@
 		A30000012C50000100000008 /* ActionBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000018 /* ActionBarView.swift */; };
 		A30000012C50000100000009 /* SwipeEngineContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000019 /* SwipeEngineContainerView.swift */; };
 		A30000012C5000010000000A /* SwipeEngineViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */; };
+		A40000012C50000100000001 /* DeletionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000011 /* DeletionError.swift */; };
+		A40000012C50000100000002 /* SizeEstimate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000012 /* SizeEstimate.swift */; };
+		A40000012C50000100000003 /* DeletionOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000013 /* DeletionOutcome.swift */; };
+		A40000012C50000100000004 /* PhotoKitDeletionServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000014 /* PhotoKitDeletionServiceProtocol.swift */; };
+		A40000012C50000100000005 /* PhotoKitDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000015 /* PhotoKitDeletionService.swift */; };
+		A40000012C50000100000006 /* FakePhotoKitDeletionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000016 /* FakePhotoKitDeletionService.swift */; };
+		A40000012C50000100000007 /* SessionSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000017 /* SessionSummaryViewModel.swift */; };
+		A40000012C50000100000008 /* SummaryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000018 /* SummaryHeaderView.swift */; };
+		A40000012C50000100000009 /* DeletionSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000019 /* DeletionSuccessView.swift */; };
+		A40000012C5000010000000A /* SessionSummaryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C5000010000001A /* SessionSummaryContainerView.swift */; };
+		A40000012C5000010000000B /* SessionSummaryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C5000010000001B /* SessionSummaryViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +86,17 @@
 		A30000012C50000100000018 /* ActionBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBarView.swift; sourceTree = "<group>"; };
 		A30000012C50000100000019 /* SwipeEngineContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngineContainerView.swift; sourceTree = "<group>"; };
 		A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngineViewModelTests.swift; sourceTree = "<group>"; };
+		A40000012C50000100000011 /* DeletionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionError.swift; sourceTree = "<group>"; };
+		A40000012C50000100000012 /* SizeEstimate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeEstimate.swift; sourceTree = "<group>"; };
+		A40000012C50000100000013 /* DeletionOutcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionOutcome.swift; sourceTree = "<group>"; };
+		A40000012C50000100000014 /* PhotoKitDeletionServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoKitDeletionServiceProtocol.swift; sourceTree = "<group>"; };
+		A40000012C50000100000015 /* PhotoKitDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoKitDeletionService.swift; sourceTree = "<group>"; };
+		A40000012C50000100000016 /* FakePhotoKitDeletionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakePhotoKitDeletionService.swift; sourceTree = "<group>"; };
+		A40000012C50000100000017 /* SessionSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryViewModel.swift; sourceTree = "<group>"; };
+		A40000012C50000100000018 /* SummaryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryHeaderView.swift; sourceTree = "<group>"; };
+		A40000012C50000100000019 /* DeletionSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionSuccessView.swift; sourceTree = "<group>"; };
+		A40000012C5000010000001A /* SessionSummaryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryContainerView.swift; sourceTree = "<group>"; };
+		A40000012C5000010000001B /* SessionSummaryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +150,7 @@
 			children = (
 				A20000012C50000100000021 /* Gallery */,
 				A30000012C50000100000020 /* SwipeEngine */,
+				A40000012C50000100000020 /* BatchDeletion */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -221,6 +244,55 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		A40000012C50000100000020 /* BatchDeletion */ = {
+			isa = PBXGroup;
+			children = (
+				A40000012C50000100000021 /* Models */,
+				A40000012C50000100000022 /* Services */,
+				A40000012C50000100000023 /* ViewModels */,
+				A40000012C50000100000024 /* Views */,
+			);
+			path = BatchDeletion;
+			sourceTree = "<group>";
+		};
+		A40000012C50000100000021 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A40000012C50000100000011 /* DeletionError.swift */,
+				A40000012C50000100000012 /* SizeEstimate.swift */,
+				A40000012C50000100000013 /* DeletionOutcome.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A40000012C50000100000022 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A40000012C50000100000014 /* PhotoKitDeletionServiceProtocol.swift */,
+				A40000012C50000100000015 /* PhotoKitDeletionService.swift */,
+				A40000012C50000100000016 /* FakePhotoKitDeletionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A40000012C50000100000023 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A40000012C50000100000017 /* SessionSummaryViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A40000012C50000100000024 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A40000012C50000100000018 /* SummaryHeaderView.swift */,
+				A40000012C50000100000019 /* DeletionSuccessView.swift */,
+				A40000012C5000010000001A /* SessionSummaryContainerView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		A10000012C50000100000013 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -235,6 +307,7 @@
 				A10000012C50000100000014 /* InfrastructureTests */,
 				A20000012C50000100000026 /* GalleryTests */,
 				A30000012C50000100000024 /* SwipeEngineTests */,
+				A40000012C50000100000025 /* BatchDeletionTests */,
 			);
 			path = TinderCleanerTests;
 			sourceTree = "<group>";
@@ -263,6 +336,14 @@
 				A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */,
 			);
 			path = SwipeEngineTests;
+			sourceTree = "<group>";
+		};
+		A40000012C50000100000025 /* BatchDeletionTests */ = {
+			isa = PBXGroup;
+			children = (
+				A40000012C5000010000001B /* SessionSummaryViewModelTests.swift */,
+			);
+			path = BatchDeletionTests;
 			sourceTree = "<group>";
 		};
 		A10000012C50000100000011 /* Products */ = {
@@ -393,6 +474,16 @@
 				A30000012C50000100000007 /* CardStackView.swift in Sources */,
 				A30000012C50000100000008 /* ActionBarView.swift in Sources */,
 				A30000012C50000100000009 /* SwipeEngineContainerView.swift in Sources */,
+				A40000012C50000100000001 /* DeletionError.swift in Sources */,
+				A40000012C50000100000002 /* SizeEstimate.swift in Sources */,
+				A40000012C50000100000003 /* DeletionOutcome.swift in Sources */,
+				A40000012C50000100000004 /* PhotoKitDeletionServiceProtocol.swift in Sources */,
+				A40000012C50000100000005 /* PhotoKitDeletionService.swift in Sources */,
+				A40000012C50000100000006 /* FakePhotoKitDeletionService.swift in Sources */,
+				A40000012C50000100000007 /* SessionSummaryViewModel.swift in Sources */,
+				A40000012C50000100000008 /* SummaryHeaderView.swift in Sources */,
+				A40000012C50000100000009 /* DeletionSuccessView.swift in Sources */,
+				A40000012C5000010000000A /* SessionSummaryContainerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -405,6 +496,7 @@
 				A20000012C5000010000000C /* PhotoLibraryServiceInvariantTests.swift in Sources */,
 				A20000012C5000010000000D /* GalleryPerformanceTests.swift in Sources */,
 				A30000012C5000010000000A /* SwipeEngineViewModelTests.swift in Sources */,
+				A40000012C5000010000000B /* SessionSummaryViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
