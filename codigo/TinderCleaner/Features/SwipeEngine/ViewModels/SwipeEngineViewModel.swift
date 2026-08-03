@@ -109,13 +109,18 @@ public final class SwipeEngineViewModel {
           onRequestID: { [weak self] requestID in
             guard let self else { return }
             Task { @MainActor [self] in
-              self.activeRequests[assetID] = requestID
+              if self.activeRequests[assetID] != nil {
+                self.activeRequests[assetID] = requestID
+              } else {
+                self.photoService.cancelImageRequest(requestID)
+              }
             }
           }
         )
         
+        let wasActive = self.activeRequests[assetID] != nil
         self.activeRequests.removeValue(forKey: assetID)
-        if let image {
+        if wasActive, let image {
           self.imageCache[assetID] = image
         }
       }
