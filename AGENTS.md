@@ -54,7 +54,7 @@
 1. ANTES de implementar, presenta el plan y espera aprobación.
 2. Implementa SOLO lo que pide la spec.
 3. Commit + push a rama `dev`.
-4. GitHub Actions compila y ejecuta tests.
+4. Push → GitHub Actions compila y ejecuta tests.
 5. Si CI falla, el agente lee los logs y corrige.
 6. Solo mergear a `main` cuando CI pase al 100%.
 
@@ -72,21 +72,51 @@ El desarrollo se rige por Spec-Driven Development (SDD):
 - Fase 2: "60 fps con 5.000 fotos" se verifica con tests automatizados en simulador CI.
 
 Estructura de carpetas:
-TinderPhoto
-├── AGENTS.md            ← El arnés o "guardarraíl" del proyecto
-├── spec/                ← Estructura base del Spec-Driven Development
-│   ├── constitution/    
-│   │   ├── mission.md   ← Qué construimos y para quién
-│   │   ├── tech-stack.md← Tecnologías y convenciones
-│   │   └── roadmap.md   ← Orden de las features a desarrollar
-│   └── features/        ← Carpeta para cada funcionalidad
-│          ├── 001-setup-y-cicd/ 
-│          │   ├── spec.md  ← Qué hace esta feature y criterios de aceptación
-│          │   ├── plan.md  ← Cómo se implementa
-│          │   └── tasks.md ← Checklist de tareas granulares
-│          └── 002-interfaz-galeria/
-│                  
-└── código/              ← El código que generará el agente (tu proyecto Xcode)
+TinderPhoto/
+├── .agents/
+│   └── skills/
+│       ├── github-actions/
+│       ├── ios-swift-development/
+│       ├── mobile-ios-design/
+│       ├── photokit/
+│       ├── swiftui-animation/
+│       └── swiftui-performance/
+│
+├── .github/
+│   └── workflows/
+│       └── build.yml                   
+│
+├── codigo/                              ← Raíz reservada al proyecto Xcode
+│   └── .gitkeep                         
+│
+├── spec/                                ← Estructura base del Spec-Driven Development
+│   ├── constitution/
+│   │   ├── mission.md                   ← Qué construimos y para quién
+│   │   ├── tech-stack.md                ← Decisiones técnicas de producto
+│   │   └── roadmap.md                   ← Orden y cierre de las fases
+│   │
+│   └── features/
+│       ├── 001-setup-y-cicd/
+│       │   ├── spec.md                  ← Requisitos y aceptación
+│       │   ├── plan.md                  ← Diseño técnico
+│       │   └── tasks.md                 ← Tareas verificables
+│       ├── 002-interfaz-galeria/
+│       │   ├── spec.md
+│       │   ├── plan.md
+│       │   └── tasks.md
+│       ├── 003-motor-swipe/
+│       │   ├── spec.md
+│       │   ├── plan.md
+│       │   └── tasks.md
+│       └── 004-eliminacion-photokit/
+│           ├── spec.md
+│           ├── plan.md
+│           └── tasks.md
+│
+├── AGENTS.md                            ← Reglas operativas del agente
+├── README.md                            ← Instalación y uso
+├── .gitignore
+└── skills-lock.json                     ← Registro de skills y versiones instaladas
 
 ## 6. Testing
 - Framework: Swift Testing (`@Test`, `#expect`). XCTest solo para UI tests.
@@ -105,3 +135,13 @@ TinderPhoto
   GitHub, nunca certificados en el repo).
 - El CI debe incluir un paso de lint que falle si se detecta `URLSession`
   o imports de frameworks de red (guardarraíl de la sección 2).
+
+## 8. Skills del agente
+El agente debe aplicar el conocimiento de estas skills durante el desarrollo:
+- photokit: caché, permisos, borrado, sincronización de galería
+- ios-swift-development: Swift 6, strict concurrency, @Observable, MVVM
+- swiftui-animation: gestos swipe, spring animations, transiciones
+- mobile-ios-design: mejora del diseño de la ui adaptada para iphone
+- swiftui-animatiion: mejora las animaciones de la app
+- github-actions-ios: workflows macos-latest, xcodebuild headless,
+  XCTest en CI, firma con secrets, diagnóstico de logs de CI

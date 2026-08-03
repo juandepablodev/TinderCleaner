@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "github-actions": {
+      "source": "callstackincubator/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/github-actions/SKILL.md",
+      "computedHash": "900022d1edee1aafa5b5b13da1d3fcd41a0297b277f9aa835c9acf98023c45a3"
+    },
+    "ios-swift-development": {
+      "source": "aj-geddes/useful-ai-prompts",
+      "sourceType": "github",
+      "skillPath": "skills/ios-swift-development/SKILL.md",
+      "computedHash": "f7ed7fceb06273c55c096c0ce67d2575c3051ea8e385bd53797dcb21cd8aed9a"
+    },
+    "mobile-ios-design": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/ui-design/skills/mobile-ios-design/SKILL.md",
+      "computedHash": "30f9f969f4fa664addff529ca3f62352f951cd672e6f10b8a9ea26fb5c55b9b5"
+    },
+    "photokit": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/photokit/SKILL.md",
+      "computedHash": "6b9f14c87cfd0f5524caa3705f25cf18d5ed5ccb3e24e509294c54609c196acc"
+    },
+    "swiftui-animation": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swiftui-animation/SKILL.md",
+      "computedHash": "baca47d3770f9b41fb7a55135da36b191897d6287462703e2f6d3c75239a17d6"
+    },
+    "swiftui-performance": {
+      "source": "dpearson2699/swift-ios-skills",
+      "sourceType": "github",
+      "skillPath": "skills/swiftui-performance/SKILL.md",
+      "computedHash": "50ec0ab74060202538ec991b638e9129deafdaf6d6e14f1fbf73c8038b94b2cc"
+    }
+  }
+}
