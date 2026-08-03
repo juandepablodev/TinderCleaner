@@ -1,5 +1,4 @@
 import SwiftUI
-import Photos
 import UIKit
 
 struct NotDeterminedPermissionView: View {
@@ -41,16 +40,13 @@ struct PermissionDeniedView: View {
   }
 }
 
-struct LimitedLibraryPickerRepresentable: UIViewControllerRepresentable {
-  @Environment(\.dismiss) private var dismiss
-
-  func makeUIViewController(context: Context) -> UIViewController {
-    let controller = UIViewController()
-    DispatchQueue.main.async {
-      PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: controller)
+struct LimitedLibraryPickerButton: View {
+  var body: some View {
+    Button("Manage Photo Access") {
+      if let url = URL(string: UIApplication.openSettingsURLString) {
+        UIApplication.shared.open(url)
+      }
     }
-    return controller
+    .buttonStyle(.borderedProminent)
   }
-
-  func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }

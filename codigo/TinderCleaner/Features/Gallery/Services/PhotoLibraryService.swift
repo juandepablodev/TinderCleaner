@@ -69,7 +69,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
     options.resizeMode = .fast
     options.isSynchronous = false
 
-    var currentRequestID: PHImageRequestID?
+    nonisolated(unsafe) var currentRequestID: PHImageRequestID?
 
     return await withTaskCancellationHandler {
       await withCheckedContinuation { continuation in

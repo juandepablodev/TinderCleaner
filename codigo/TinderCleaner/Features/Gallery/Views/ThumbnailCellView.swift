@@ -42,9 +42,15 @@ struct ThumbnailCellView: View {
       }
     }
     .task(id: asset.id) {
-      image = await viewModel.requestThumbnail(for: asset, targetSize: targetSize) { reqID in
-        self.requestID = reqID
+      let loadedImage = await viewModel.requestThumbnail(
+        for: asset,
+        targetSize: targetSize
+      ) { reqID in
+        Task { @MainActor in
+          self.requestID = reqID
+        }
       }
+      self.image = loadedImage
     }
     .onDisappear {
       if let reqID = requestID {

@@ -41,7 +41,16 @@ public struct GalleryContainerView: View {
             GalleryGridView(viewModel: viewModel)
           }
           .sheet(isPresented: $showLimitedPicker) {
-            LimitedLibraryPickerRepresentable()
+            NavigationStack {
+              VStack(spacing: 16) {
+                Text("To manage which photos TinderCleaner can access, go to Settings.")
+                  .multilineTextAlignment(.center)
+                  .padding()
+                LimitedLibraryPickerButton()
+              }
+              .navigationTitle("Manage Access")
+              .navigationBarTitleDisplayMode(.inline)
+            }
           }
 
         case .denied, .restricted:
