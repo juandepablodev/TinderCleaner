@@ -97,6 +97,10 @@ public final class SwipeEngineViewModel {
     for asset in window where imageCache[asset.id] == nil && activeRequests[asset.id] == nil {
       let assetID = asset.id
       let size = displayTargetSize
+      
+      // Mark as active synchronously to prevent duplicate Tasks while waiting for the real ID
+      activeRequests[assetID] = PHInvalidImageRequestID
+      
       Task { @MainActor [weak self, photoService] in
         guard let self else { return }
         let image = await photoService.requestThumbnail(
