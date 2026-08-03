@@ -2,6 +2,7 @@ import Foundation
 import Photos
 import UIKit
 import SwiftUI
+import AVFoundation
 
 @Observable
 @MainActor
@@ -23,8 +24,9 @@ public final class SwipeEngineViewModel {
     return SessionResult(keep: keep, pendingDeletion: delete)
   }
 
-  // Bounded image cache and active requests (Invariants: count <= 3)
+  // Bounded image & video cache and active requests (Invariants: count <= 3)
   var imageCache: [String: UIImage] = [:]
+  var playerItemCache: [String: AVPlayerItem] = [:]
   var activeRequests: [String: PHImageRequestID] = [:]
 
   private let photoService: PhotoLibraryServiceProtocol
@@ -65,6 +67,10 @@ public final class SwipeEngineViewModel {
     imageCache[asset.id]
   }
 
+  public func playerItem(for asset: AssetModel) -> AVPlayerItem? {
+    playerItemCache[asset.id]
+  }
+
   public func updateDisplayTargetSize(_ size: CGSize) {
     guard size.width > 0, size.height > 0, size != displayTargetSize else { return }
     self.displayTargetSize = size
@@ -78,6 +84,7 @@ public final class SwipeEngineViewModel {
       photoService.cancelImageRequest(requestID)
     }
     imageCache.removeValue(forKey: asset.id)
+    playerItemCache.removeValue(forKey: asset.id)
   }
 
   public func preloadWindow() {
@@ -91,9 +98,10 @@ public final class SwipeEngineViewModel {
         photoService.cancelImageRequest(reqID)
       }
       imageCache.removeValue(forKey: id)
+      playerItemCache.removeValue(forKey: id)
     }
 
-    // Request thumbnails for missing items in the window
+    // Request thumbnails/video items for missing items in the window
     for asset in window where imageCache[asset.id] == nil && activeRequests[asset.id] == nil {
       let assetID = asset.id
       let size = displayTargetSize
@@ -122,6 +130,17 @@ public final class SwipeEngineViewModel {
         self.activeRequests.removeValue(forKey: assetID)
         if wasActive, let image {
           self.imageCache[assetID] = image
+        }
+
+        // If it's a video asset, also request the AVPlayerItem for video playback
+        if wasActive && asset.isVideo && self.playerItemCache[assetID] == nil {
+          let item = await photoService.requestPlayerItem(
+            for: asset,
+            onRequestID: { _ in }
+          )
+          if let item {
+            self.playerItemCache[assetID] = item
+          }
         }
       }
     }

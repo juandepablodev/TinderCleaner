@@ -51,30 +51,36 @@ public final class GalleryViewModel {
   }
 
   public func apply(_ change: AssetLibraryChange) {
-    if !change.hasIncrementalChanges {
+    guard change.hasIncrementalChanges else {
       self.assets = change.snapshotAfter
-    } else {
-      var currentAssets = self.assets
-      
-      for i in change.removed.sorted().reversed() {
-        if i < currentAssets.count {
-          currentAssets.remove(at: i)
-        }
+      return
+    }
+
+    var currentAssets = self.assets
+    
+    for i in change.removed.sorted().reversed() {
+      if i >= 0 && i < currentAssets.count {
+        currentAssets.remove(at: i)
       }
-      
-      for i in change.inserted.sorted() {
-        if i <= currentAssets.count, i < change.snapshotAfter.count {
-          currentAssets.insert(change.snapshotAfter[i], at: i)
-        }
+    }
+    
+    for i in change.inserted.sorted() {
+      if i >= 0 && i <= currentAssets.count && i < change.snapshotAfter.count {
+        currentAssets.insert(change.snapshotAfter[i], at: i)
       }
-      
-      for i in change.changed {
-        if i < currentAssets.count, i < change.snapshotAfter.count {
-          currentAssets[i] = change.snapshotAfter[i]
-        }
+    }
+    
+    for i in change.changed {
+      if i >= 0 && i < currentAssets.count && i < change.snapshotAfter.count {
+        currentAssets[i] = change.snapshotAfter[i]
       }
-      
+    }
+
+    // Safety fallback: if diff count mismatch occurs, force snapshotAfter
+    if currentAssets.count == change.snapshotAfter.count {
       self.assets = currentAssets
+    } else {
+      self.assets = change.snapshotAfter
     }
   }
 

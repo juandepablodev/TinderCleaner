@@ -15,6 +15,7 @@ struct CardStackView: View {
           CardView(
             asset: nextAsset,
             image: viewModel.image(for: nextAsset),
+            playerItem: viewModel.playerItem(for: nextAsset),
             isTopCard: false,
             dragOffset: .zero
           )
@@ -27,6 +28,7 @@ struct CardStackView: View {
           CardView(
             asset: currentAsset,
             image: viewModel.image(for: currentAsset),
+            playerItem: viewModel.playerItem(for: currentAsset),
             isTopCard: true,
             dragOffset: dragOffset
           )
@@ -58,10 +60,17 @@ struct CardStackView: View {
     }
   }
 
+  private func triggerHapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+    let generator = UIImpactFeedbackGenerator(style: style)
+    generator.impactOccurred()
+  }
+
   private func handleDragEnd(translation: CGSize, velocityX: CGFloat, screenWidth: CGFloat) {
     if translation.width > 120 || velocityX > 500 {
+      triggerHapticFeedback(style: .medium)
       completeSwipe(decision: .keep, directionRight: true, screenWidth: screenWidth)
     } else if translation.width < -120 || velocityX < -500 {
+      triggerHapticFeedback(style: .medium)
       completeSwipe(decision: .delete, directionRight: false, screenWidth: screenWidth)
     } else {
       withAnimation(.spring(duration: 0.3, bounce: 0.2)) {

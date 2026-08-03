@@ -32,6 +32,7 @@
 		A30000012C50000100000007 /* CardStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000017 /* CardStackView.swift */; };
 		A30000012C50000100000008 /* ActionBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000018 /* ActionBarView.swift */; };
 		A30000012C50000100000009 /* SwipeEngineContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000019 /* SwipeEngineContainerView.swift */; };
+		A30000012C50000100000099 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C50000100000098 /* VideoPlayerView.swift */; };
 		A30000012C5000010000000A /* SwipeEngineViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */; };
 		A40000012C50000100000001 /* DeletionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000011 /* DeletionError.swift */; };
 		A40000012C50000100000002 /* SizeEstimate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000012 /* SizeEstimate.swift */; };
@@ -85,6 +86,7 @@
 		A30000012C50000100000017 /* CardStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStackView.swift; sourceTree = "<group>"; };
 		A30000012C50000100000018 /* ActionBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBarView.swift; sourceTree = "<group>"; };
 		A30000012C50000100000019 /* SwipeEngineContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngineContainerView.swift; sourceTree = "<group>"; };
+		A30000012C50000100000098 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		A30000012C5000010000001A /* SwipeEngineViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngineViewModelTests.swift; sourceTree = "<group>"; };
 		A40000012C50000100000011 /* DeletionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionError.swift; sourceTree = "<group>"; };
 		A40000012C50000100000012 /* SizeEstimate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeEstimate.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				A30000012C50000100000017 /* CardStackView.swift */,
 				A30000012C50000100000018 /* ActionBarView.swift */,
 				A30000012C50000100000019 /* SwipeEngineContainerView.swift */,
+				A30000012C50000100000098 /* VideoPlayerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -474,6 +477,7 @@
 				A30000012C50000100000007 /* CardStackView.swift in Sources */,
 				A30000012C50000100000008 /* ActionBarView.swift in Sources */,
 				A30000012C50000100000009 /* SwipeEngineContainerView.swift in Sources */,
+				A30000012C50000100000099 /* VideoPlayerView.swift in Sources */,
 				A40000012C50000100000001 /* DeletionError.swift in Sources */,
 				A40000012C50000100000002 /* SizeEstimate.swift in Sources */,
 				A40000012C50000100000003 /* DeletionOutcome.swift in Sources */,

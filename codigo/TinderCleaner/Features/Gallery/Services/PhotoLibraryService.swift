@@ -1,6 +1,7 @@
 import Foundation
 import Photos
 import UIKit
+import AVFoundation
 
 /// Production implementation of PhotoLibraryServiceProtocol interfacing with PhotoKit.
 public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @unchecked Sendable {
@@ -65,8 +66,8 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
 
     let options = PHImageRequestOptions()
     options.isNetworkAccessAllowed = false // Privacy invariant: local-only access
-    options.deliveryMode = .opportunistic
-    options.resizeMode = .fast
+    options.deliveryMode = .highQualityFormat
+    options.resizeMode = .exact
     options.isSynchronous = false
 
     let state = RequestState()
@@ -83,9 +84,47 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
           let isCancelled = (info?[PHImageCancelledKey] as? Bool) ?? false
           let isError = info?[PHImageErrorKey] != nil
           
-          let isFinal = !isDegraded || image != nil || isCancelled || isError
+          let isFinal = !isDegraded || isCancelled || isError
           if isFinal {
             state.resumeOnce(continuation: continuation, image: image)
+          }
+        }
+        state.setRequestID(reqID)
+        onRequestID(reqID)
+      }
+    } onCancel: {
+      if let reqID = state.getRequestID() {
+        imageManager.cancelImageRequest(reqID)
+      }
+    }
+  }
+
+  public func requestPlayerItem(
+    for asset: AssetModel,
+    onRequestID: @Sendable (PHImageRequestID) -> Void
+  ) async -> AVPlayerItem? {
+    let result = getOrFetchResult()
+    guard let phAsset = fetchPHAsset(with: asset.id, in: result) else {
+      return nil
+    }
+
+    let options = PHVideoRequestOptions()
+    options.isNetworkAccessAllowed = false
+    options.deliveryMode = .highQualityFormat
+
+    let state = RequestStateVideo()
+
+    return await withTaskCancellationHandler {
+      await withCheckedContinuation { continuation in
+        let reqID = imageManager.requestAVAsset(forVideo: phAsset, options: options) { avAsset, audioMix, info in
+          let isCancelled = (info?[PHImageCancelledKey] as? Bool) ?? false
+          let isError = info?[PHImageErrorKey] != nil
+
+          if let avAsset, !isCancelled && !isError {
+            let item = AVPlayerItem(asset: avAsset)
+            state.resumeOnce(continuation: continuation, playerItem: item)
+          } else {
+            state.resumeOnce(continuation: continuation, playerItem: nil)
           }
         }
         state.setRequestID(reqID)
@@ -222,6 +261,37 @@ private final class RequestState: @unchecked Sendable {
 
     if !alreadyResumed {
       continuation.resume(returning: image)
+    }
+  }
+}
+
+private final class RequestStateVideo: @unchecked Sendable {
+  private let lock = NSLock()
+  private var requestID: PHImageRequestID?
+  private var hasResumed = false
+
+  func setRequestID(_ id: PHImageRequestID) {
+    lock.lock()
+    defer { lock.unlock() }
+    requestID = id
+  }
+
+  func getRequestID() -> PHImageRequestID? {
+    lock.lock()
+    defer { lock.unlock() }
+    return requestID
+  }
+
+  func resumeOnce(continuation: CheckedContinuation<AVPlayerItem?, Never>, playerItem: AVPlayerItem?) {
+    lock.lock()
+    let alreadyResumed = hasResumed
+    if !alreadyResumed {
+      hasResumed = true
+    }
+    lock.unlock()
+
+    if !alreadyResumed {
+      continuation.resume(returning: playerItem)
     }
   }
 }

@@ -1,6 +1,7 @@
 import Foundation
 import Photos
 import UIKit
+import AVFoundation
 
 /// Synthetic implementation of PhotoLibraryServiceProtocol for fast, isolated CI testing without PhotoKit.
 public final class FakePhotoLibraryService: PhotoLibraryServiceProtocol, @unchecked Sendable {
@@ -50,6 +51,16 @@ public final class FakePhotoLibraryService: PhotoLibraryServiceProtocol, @unchec
     
     // Return a dummy image
     return UIImage()
+  }
+
+  public func requestPlayerItem(
+    for asset: AssetModel,
+    onRequestID: @Sendable (PHImageRequestID) -> Void
+  ) async -> AVPlayerItem? {
+    let reqID = nextRequestID
+    nextRequestID += 1
+    onRequestID(reqID)
+    return nil
   }
 
   public func cancelImageRequest(_ requestID: PHImageRequestID) {

@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct SwipeEngineContainerView: View {
   @State private var viewModel: SwipeEngineViewModel
+  @Environment(\.dismiss) private var dismiss
 
   public init(assets: [AssetModel], photoService: PhotoLibraryServiceProtocol = PhotoLibraryService()) {
     _viewModel = State(initialValue: SwipeEngineViewModel(assets: assets, photoService: photoService))
@@ -70,7 +71,20 @@ public struct SwipeEngineContainerView: View {
     }
     .navigationTitle("Review Photos")
     .navigationBarTitleDisplayMode(.inline)
+    .navigationBarBackButtonHidden(true)
     .toolbar {
+      ToolbarItem(placement: .topBarLeading) {
+        Button {
+          dismiss()
+        } label: {
+          HStack(spacing: 4) {
+            Image(systemName: "chevron.left")
+              .font(.body.bold())
+            Text("Galeria")
+          }
+        }
+      }
+
       ToolbarItem(placement: .primaryAction) {
         NavigationLink(destination: SessionSummaryContainerView(session: viewModel.sessionResult)) {
           Text("Terminar")
