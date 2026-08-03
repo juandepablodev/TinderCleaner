@@ -1,209 +1,240 @@
-# Especificación Funcional y Técnica (SDD) — Feature 003: Motor de Swipe y Tarjetas Interactivas
+# Especificación Funcional y Técnica (SDD) — Feature 002 (v2): Carga de Galería e Interfaz PhotoKit
 
-> **ID Feature:** `003-motor-swipe`  
-> **Estado:** Especificado  
-> **Versión target:** iOS 17.0+ | Swift 6.0 (Strict Concurrency Complete)  
-> **Ubicación del código:** `/codigo/TinderCleaner/Features/SwipeEngine`  
-> **ViewModel central:** `SwipeEngineViewModel`
+> **ID Feature:** `002-interfaz-galeria`
+> **Estado:** Especificado (v2 — corregida tras análisis de concurrencia y contratos)
+> **Versión target:** iOS 17.0+ | Swift 6.0 (`SWIFT_STRICT_CONCURRENCY = complete`, `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES`)
+> **Ubicación del código:** `/codigo/TinderCleaner/Features/Gallery`
+> **Protocolo principal:** `PhotoLibraryServiceProtocol`
+> **Dependencias:** Feature 001 (CI + guardarraíl de red, invariante `isNetworkAccessAllowed = false`)
 
 ---
 
 ## 1. Visión General y Objetivos
 
-La feature **003-motor-swipe** constituye el núcleo de interacción de **TinderCleaner**. Proporciona una interfaz basada en una pila de tarjetas deslizables estilo Tinder, donde el usuario clasifica velozmente su galería mediante gestos táctiles o botones de acción.
+Gestiona el ciclo de vida de permisos de PhotoKit y presenta la biblioteca en una cuadrícula fluida, ordenada por `creationDate` descendente. La capa de abstracción es **gruesa** (expone diffs incrementales y request IDs) para no destruir las propiedades clave de `PHFetchResult`/`PHCachingImageManager` al cruzar el protocolo.
 
 ### Objetivos Clave
-1. Implementar la pila de tarjetas interactivas con gestos de arrastre (`DragGesture`), respuesta física fluida (`Spring`) y visualización de intenciones ("CONSERVAR" en verde a la derecha, "ELIMINAR" en rojo a la izquierda).
-2. Garantizar una ventana de precarga asíncrona de 3 imágenes a resolución de pantalla (tarjeta activa `i`, e `i+1`, `i+2`) liberando inmediatamente la memoria de las tarjetas descartadas.
-3. Proveer una pila de decisiones en memoria con funcionalidad "Deshacer" (Undo) instantánea que revierta la última clasificación y restaure la tarjeta con animación física.
-4. Incluir botones de acción accesibles en pantalla y soporte nativo para `accessibilityReduceMotion`.
+1. Manejar reactivamente los 5 estados de autorización (`notDetermined`, `authorized`, `limited`, `denied`, `restricted`).
+2. Grid con `PHCachingImageManager` inyectado (nunca `PHImageManager.default()`), prefetching con búfer y cancelación explícita por `PHImageRequestID`.
+3. Sincronización incremental vía `PHPhotoLibraryChangeObserver` propagando **diffs**, no arrays completos.
+4. Contrato 100% conforme a Swift 6 strict concurrency (compila con cero warnings bajo el criterio 1.1 de Feature 001).
+5. Invariante de privacidad: **toda** petición de imagen usa `PHImageRequestOptions.isNetworkAccessAllowed = false` (coherente con el lint de Feature 001).
 
 ---
 
-## 2. Criterios de Aceptación (Medibles y Testeables)
+## 2. Criterios de Aceptación
 
-### Criterio 3.1: Clasificación por Gestos y Umbrales
-- **Given** la tarjeta superior activa en la pila.
-- **When** el usuario la arrastra a la derecha superando +120 pt de desplazamiento X o una velocidad horizontal positiva `> 500 pt/s`.
-- **Then** la tarjeta se desliza fuera de pantalla hacia la derecha, marcando el asset como `kept` (conservado) y avanzando a la siguiente tarjeta.
-- **When** el usuario la arrastra a la izquierda superando -120 pt de desplazamiento X o velocidad `<-500 pt/s`.
-- **Then** la tarjeta se desliza hacia la izquierda, marcando el asset como `pendingDeletion` (marcado para borrar) y avanzando a la siguiente.
-- **When** el arrastre no supera los umbrales al soltar el dedo.
-- **Then** la tarjeta regresa a la posición inicial (0,0) mediante una animación de muelle `Spring(duration: 0.3, bounce: 0.2)`.
+### Criterio 2.1: Gestión Reactiva de Permisos
+- **Given** la app en estado `notDetermined`.
+- **When** el usuario pulsa "Dar acceso a la fototeca".
+- **Then** se invoca `PHPhotoLibrary.requestAuthorization(for: .readWrite)`.
+- **And** `authorized` → grid inmediato; `limited` → grid + banner con `presentLimitedLibraryPicker` (vía `UIViewControllerRepresentable` dedicado, §5.2); `denied`/`restricted` → pantalla con botón a `UIApplication.openSettingsURLString`.
 
-### Criterio 3.2: Ventana de Pre-carga Asíncrona (3 Tarjetas) y Gestión de Memoria
-- **Given** una secuencia de assets en la pila.
-- **When** la tarjeta `i` está en pantalla.
-- **Then** el motor pre-carga de forma asíncrona mediante `PHImageManager` la versión full-screen (tamaño de pantalla del dispositivo) de los índices `i`, `i+1` e `i+2`.
-- **And** en cuanto la tarjeta `i` es swipeada, su referencia de imagen full-size se libera de memoria (dealloc) y el índice `i+3` entra en la cola de precarga.
-- **And** la huella de memoria (RAM) no excede los **150 MB** durante una sesión de 500 swipes consecutivos.
+### Criterio 2.2: Carga Eficiente de Miniaturas y Cancelación Real
+- **Given** una biblioteca con miles de assets.
+- **When** el usuario hace scroll.
+- **Then** las imágenes se cargan con el `PHCachingImageManager` **inyectado**, `targetSize = celda × displayScale`.
+- **And** la celda recibe el `PHImageRequestID` en el momento de crearse la petición (callback `onRequestID`), lo almacena y cancela en `onDisappear` **sobre la misma instancia del manager**.
+- **And** al cancelarse el `Task` async, `withTaskCancellationHandler` cancela también el `PHImageRequestID` (sin peticiones huérfanas).
+- **And** `updatePrefetchWindow` invoca `startCaching`/`stopCaching` sobre el rango visible ± 2 pantallas.
 
-### Criterio 3.3: Mecanismo de Deshacer (Undo Stack)
-- **Given** al menos un asset clasificado previamente en la sesión actual.
-- **When** el usuario presiona el botón "Deshacer" (Undo).
-- **Then** se desapila la última decisión registrada en la pila de historial.
-- **And** la tarjeta correspondiente reaparece desde el borde de pantalla y regresa al tope de la pila con animación física.
-- **And** el contador de elementos pendientes de eliminación se actualiza inmediatamente.
+### Criterio 2.3: Sincronización Incremental (verificable)
+- **Given** el grid visible.
+- **When** ocurre un cambio externo en la fototeca.
+- **Then** el servicio emite un `AssetLibraryChange` con `inserted`/`removed`/`changed` (IndexSets) y el `fetchResultAfterChanges` actualizado.
+- **And** el ViewModel aplica el diff sin recargar el array completo ni reiniciar el scroll (test: mutación de 1 asset sobre 5.000 no re-emite los 4.999 restantes).
 
-### Criterio 3.4: Botones de Acción Accesibles y Reduce Motion
-- **Given** la interfaz del motor de swipe.
-- **When** el usuario prefiere no usar gestos y toca el botón de "Check Verde" (Conservar) o "Papelera Roja" (Eliminar).
-- **Then** se ejecuta la misma acción de clasificación con su animación correspondiente.
-- **And** si `accessibilityReduceMotion` está activado en Ajustes de iOS, los gestos y animaciones de arrastre se sustituyen por fundidos suaves (`.opacity`), respetando las guías de accesibilidad de Apple.
+### Criterio 2.4: Testing en CI con Assets Sintéticos
+- **Given** `FakePhotoLibraryService` con 5.000 assets.
+- **When** corren los tests de `GalleryViewModel`.
+- **Then** verifican en < 500 ms: orden cronológico inverso, transiciones de permiso, **rango exacto de `startCaching`/`stopCaching` en `updatePrefetchWindow`** (criterio nuevo), y aplicación correcta de un diff incremental.
+- **And** un test de invariante verifica que toda petición del servicio real configura `isNetworkAccessAllowed = false`.
 
----
-
-## 3. Fuera de Alcance (Out of Scope)
-
-1. Eliminación física de archivos en PhotoKit (Feature 004).
-2. Edición o recorte de fotos/vídeos.
-3. Persistencia de la sesión en disco (el estado vive exclusivamente en memoria durante la sesión).
+### Criterio 2.5: Rendimiento de Scroll (presupuesto medible)
+- **Then** con los 5.000 assets del Fake, el renderizado de un frame de scroll no supera 8 ms en el dispositivo de CI (XCTest metric `XCTClockMetric` sobre `updatePrefetchWindow` + diff). Presupuesto orientativo para detectar regresiones, no benchmark absoluto.
 
 ---
 
-## 4. Diseño Arquitectónico y Modelos de Datos
+## 3. Fuera de Alcance
 
-### 4.1 Estado de Clasificación y Pila de Historial
+1. Visualización a pantalla completa y reproducción de vídeo (Feature 003).
+2. Gestos de swipe y descarte (Feature 003).
+3. Eliminación de assets (Feature 004).
+
+---
+
+## 4. Diseño Arquitectónico y Contratos (corregido)
+
+### 4.1 Modelo de Datos — sin tipos no-Sendable
 
 ```swift
 import Foundation
-import SwiftUI
 import Photos
+import SwiftUI
 
-public enum SwipeDecision: Sendable, Equatable {
-    case keep
-    case delete
+/// Asset para la capa de presentación. Sendable real:
+/// NO contiene PHAsset (no conforma Sendable en Swift 6).
+/// El PHAsset se resuelve bajo demanda por localIdentifier dentro del servicio.
+public struct AssetModel: Identifiable, Sendable, Equatable {
+    public let id: String            // = localIdentifier del PHAsset
+    public let mediaType: PHAssetMediaType
+    public let duration: TimeInterval
+    public let creationDate: Date?
+    public let pixelWidth: Int
+    public let pixelHeight: Int
+
+    public var isVideo: Bool { mediaType == .video }
+
+    public static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
 }
 
-public struct ClassifiedAsset: Identifiable, Sendable, Equatable {
-    public let asset: AssetModel
-    public let decision: SwipeDecision
-    public let timestamp: Date
-    
-    public var id: String { asset.id }
-}
-
-@Observable
-@MainActor
-public final class SwipeEngineViewModel {
-    // Assets pendientes por revisar
-    public private(set) var remainingAssets: [AssetModel] = []
-    
-    // Tarjeta activa (índice 0) y siguiente (índice 1)
-    public var currentAsset: AssetModel? { remainingAssets.first }
-    public var nextAsset: AssetModel? { remainingAssets.dropFirst().first }
-    
-    // Pila de historial para Undo
-    public private(set) var historyStack: [ClassifiedAsset] = []
-    
-    // Caché en memoria restringida a 3 imágenes full-screen
-    private var imageCache: [String: UIImage] = [:]
-    private var activeRequests: [String: PHImageRequestID] = [:]
-    
-    private let photoService: PhotoLibraryServiceProtocol
-    
-    public init(assets: [AssetModel], photoService: PhotoLibraryServiceProtocol) {
-        self.remainingAssets = assets
-        self.photoService = photoService
-        preloadWindow()
-    }
-    
-    public func processDecision(_ decision: SwipeDecision) {
-        guard let asset = remainingAssets.first else { return }
-        
-        let classified = ClassifiedAsset(asset: asset, decision: decision, timestamp: Date())
-        historyStack.append(classified)
-        
-        // Eliminar asset procesado y liberar su caché
-        let removed = remainingAssets.removeFirst()
-        imageCache.removeValue(forKey: removed.id)
-        
-        // Actualizar ventana de precarga para los próximos 3
-        preloadWindow()
-    }
-    
-    public func undoLastDecision() {
-        guard let lastClassified = historyStack.popLast() else { return }
-        
-        // Reinsertar al inicio de la pila
-        remainingAssets.insert(lastClassified.asset, at: 0)
-        preloadWindow()
-    }
-    
-    private func preloadWindow() {
-        let window = remainingAssets.prefix(3)
-        // Invoca petición asíncrona de imagen a resolución de pantalla
-    }
+/// Diff incremental: preserva la granularidad de PHFetchResultChangeDetails
+/// al cruzar el protocolo (corrige el cuello de botella de la v1).
+public struct AssetLibraryChange: Sendable {
+    public let inserted: IndexSet
+    public let removed: IndexSet
+    public let changed: IndexSet
+    public let snapshotAfter: [AssetModel]   // solo para reconciliación; la UI aplica los IndexSets
+    public let hasIncrementalChanges: Bool   // false = fetch result cambió por completo (reset)
 }
 ```
 
----
-
-## 5. Diseño de Interfaz de Usuario y Gestos SwiftUI
-
-### 5.1 Jerarquía de Vistas
-```text
-SwipeEngineContainerView
-├── CardStackView (ZStack de 2 tarjetas: fondo y frente)
-│   ├── CardView (Siguiente tarjeta - scale 0.95, opacity 0.8)
-│   └── CardView (Tarjeta activa - gestos DragGesture, rotationEffect, offset)
-│       ├── OverlayBadgeView ("CONSERVAR" verde si offset.width > 0)
-│       └── OverlayBadgeView ("ELIMINAR" rojo si offset.width < 0)
-└── ActionBarView (HStack de botones inferiores)
-    ├── UndoButton (Habilitado solo si historyStack no está vacío)
-    ├── DeleteButton (Izquierda - Papelera)
-    └── KeepButton (Derecha - Corazón/Check)
-```
-
-### 5.2 Física del Arrastre y Rotación
-La rotación de la tarjeta activa se calcula dinámicamente en función de la distancia de arrastre horizontal:
-$$\text{Angulo (grados)} = \frac{\text{translation.width}}{20.0}$$
+### 4.2 Contrato del servicio — cancelación e instancia coherentes
 
 ```swift
-CardView(asset: asset, image: image)
-    .offset(x: offset.width, y: offset.height)
-    .rotationEffect(.degrees(Double(offset.width / 20.0)))
-    .gesture(
-        DragGesture()
-            .onChanged { gesture in
-                offset = gesture.translation
+public protocol PhotoLibraryServiceProtocol: Sendable {
+    var authorizationStatus: PHAuthorizationStatus { get }
+    func requestAuthorization() async -> PHAuthorizationStatus
+
+    /// Snapshot lazy-paginable: el servicio real mantiene PHFetchResult interno
+    /// y materializa por ventana, no los 50.000 assets de golpe.
+    func fetchAssetCount() async -> Int
+    func fetchAssets(in range: Range<Int>) async -> [AssetModel]
+
+    /// El requestID se entrega SINCRÓNICAMENTE al crear la petición,
+    /// porque es el único momento en que existe. La cancelación se aplica
+    /// sobre la MISMA instancia de PHCachingImageManager que la creó.
+    func requestThumbnail(
+        for asset: AssetModel,
+        targetSize: CGSize,
+        onRequestID: @Sendable (PHImageRequestID) -> Void
+    ) async -> UIImage?
+
+    func cancelImageRequest(_ requestID: PHImageRequestID)
+    func startCaching(for assets: [AssetModel], targetSize: CGSize)
+    func stopCaching(for assets: [AssetModel], targetSize: CGSize)
+
+    /// Stream de diffs (no arrays completos)
+    func changeStream() -> AsyncStream<AssetLibraryChange>
+}
+```
+
+**Notas de implementación obligatorias (vinculantes):**
+- La implementación real (`PhotoLibraryService`) recibe su `PHCachingImageManager` **por inyección en el init** (prohibido `PHImageManager.default()`, coherente con la prohibición de singletons de Feature 001).
+- `requestThumbnail` se implementa con `withCheckedContinuation` + `withTaskCancellationHandler`: el handler de cancelación invoca `cancelImageRequest(requestID)` sobre el manager inyectado.
+- Toda petición construye `PHImageRequestOptions` con `isNetworkAccessAllowed = false` (lint + test de invariante).
+- El bridge de `PHPhotoLibraryChangeObserver` se traduce a `AssetLibraryChange` aplicando `PHFetchResultChangeDetails` antes de emitir.
+
+### 4.3 ViewModel
+
+```swift
+@Observable
+@MainActor
+public final class GalleryViewModel {
+    public private(set) var authorizationStatus: PHAuthorizationStatus = .notDetermined
+    public private(set) var assets: [AssetModel] = []
+    public private(set) var isLoading: Bool = false
+    public var errorMessage: String? = nil
+
+    private let photoService: PhotoLibraryServiceProtocol
+    private var changeTask: Task<Void, Never>?
+
+    public init(photoService: PhotoLibraryServiceProtocol) {
+        self.photoService = photoService
+        self.authorizationStatus = photoService.authorizationStatus
+    }
+
+    public func checkAndRequestPermission() async { /* igual que v1 */ }
+
+    public func loadGallery() async {
+        isLoading = true
+        defer { isLoading = false }
+        let count = await photoService.fetchAssetCount()
+        self.assets = await photoService.fetchAssets(in: 0..<count)
+        startObservingChanges()
+    }
+
+    private func startObservingChanges() {
+        changeTask?.cancel()
+        changeTask = Task { [photoService] in
+            for await change in photoService.changeStream() {
+                await MainActor.run { [weak self] in self?.apply(change) }
             }
-            .onEnded { gesture in
-                handleDragEnd(translation: gesture.translation, velocity: gesture.velocity)
-            }
-    )
+        }
+    }
+
+    func apply(_ change: AssetLibraryChange) {
+        if !change.hasIncrementalChanges {
+            assets = change.snapshotAfter        // reset completo
+        } else {
+            for i in change.removed.sorted().reversed() { assets.remove(at: i) }
+            for i in change.inserted.sorted() { assets.insert(change.snapshotAfter[i], at: i) }
+            for i in change.changed { assets[i] = change.snapshotAfter[i] }
+        }
+    }
+
+    public func updatePrefetchWindow(visibleIndices: IndexSet, targetSize: CGSize) {
+        guard let lo = visibleIndices.min(), let hi = visibleIndices.max() else { return }
+        let page = max(hi - lo + 1, 1)
+        let prefetch = max(lo - 2 * page, 0)..<min(hi + 2 * page + 1, assets.count)
+        photoService.startCaching(for: Array(assets[prefetch]), targetSize: targetSize)
+    }
+
+    deinit { changeTask?.cancel() }
+}
 ```
 
 ---
 
-## 6. Estrategia de Rendimiento y Memoria
+## 5. Diseño de Vistas SwiftUI
 
-1. **Límite Estricto de Renderizado:**
-   - La `ZStack` renderiza **únicamente 2 tarjetas** simultáneamente a nivel visual (la activa y la inmediatamente posterior).
-   - Renderizar más de 2 tarjetas en el árbol de SwiftUI degrada el rendimiento a menos de 60 fps durante gestos continuos.
-2. **Imágenes Display-Size vs Full-Resolution:**
-   - Para la tarjeta activa, se solicita una imagen con `targetSize` equivalente a `UIScreen.main.bounds.size * displayScale` y `contentMode: .aspectFit`.
-   - Queda estrictamente prohibido cargar la imagen de resolución original (e.g. 48 Megapíxeles = 192 MB sin comprimir) salvo que el usuario haga zoom explícito.
-3. **Liberación Inmediata de Memoria:**
-   - En cuanto se descarta una tarjeta, la clave de su imagen se elimina de `imageCache`.
+### 5.1 Jerarquía
+1. `GalleryContainerView` conmuta por `authorizationStatus` (igual que v1).
+2. `GalleryGridView`: `LazyVGrid` 3 columnas; cada `ThumbnailCellView`:
+   - `@State private var requestID: PHImageRequestID?`
+   - En `onAppear`/`.task`: llama a `requestThumbnail` pasando `onRequestID: { requestID = $0 }`.
+   - En `onDisappear`: si hay ID, `photoService.cancelImageRequest(id)` sobre el servicio inyectado (misma instancia del manager).
+3. Badge de duración de vídeo **formateado en el ViewModel** (`formattedDuration: String` derivado de `AssetModel.duration`), no en la vista (cierra la deuda señalada en el análisis).
+
+### 5.2 Acceso Limitado
+`LimitedLibraryPickerRepresentable: UIViewControllerRepresentable` dedicado que presenta `PHPhotoLibrary.shared().presentLimitedLibraryPicker(from:)`. Prohibido el acceso informal a `keyWindow`/escenas (frágil entre versiones de iOS).
 
 ---
 
-## 7. Casos Límite y Manejo de Errores
+## 6. Concurrencia y Memoria
 
-| Caso Límite | Comportamiento Esperado | Solución de Diseño |
+1. Prohibido cargar full-size en celdas; `targetSize = puntos × displayScale`.
+2. Cancelación doble: `onDisappear` (cancelación por reciclaje) + `withTaskCancellationHandler` (cancelación por Task). Ambas sobre el manager inyectado.
+3. Actualización de `assets` solo en `@MainActor`; el bridge del observer y la ordenación en background.
+4. El filtrado de `PHFetchResult` se materializa **por ventanas** (`fetchAssets(in:)`), nunca el fetch completo (corrige el riesgo de memoria de la v1 con bibliotecas de 50.000+ assets).
+
+---
+
+## 7. Casos Límite
+
+| Caso Límite | Comportamiento | Solución |
 |---|---|---|
-| Fin de la cola de fotos (0 pendientes) | La vista pasa automáticamente a la pantalla de Resumen de Sesión (`SessionSummaryView`). | Condición `remainingAssets.isEmpty` activa navegación. |
-| Swipe ultrarrápido (múltiples swipes en < 1 segundo) | La pila responde sin bloqueo, encolando las decisiones en el ViewModel. | La precarga asíncrona prioriza siempre la tarjeta visible `i`. |
-| Vídeos pesados en la tarjeta activa | Muestra la miniatura estática de portada con indicador de reproducción y duración. | El vídeo no se reproduce automáticamente para preservar batería y memoria. |
-| Deshacer cuando la pila de historial está vacía | El botón "Deshacer" está deshabilitado visualmente (`disabled(historyStack.isEmpty)`). | Previene excepciones de índice fuera de rango. |
+| Galería vacía | `ContentUnavailableView` | Estado explícito |
+| Permiso revocado en Ajustes | iOS reinicia el proceso; reevaluar en `onAppear` | ViewModel |
+| Asset solo en iCloud | Petición devuelve `nil` inmediatamente (`isNetworkAccessAllowed = false`) → placeholder gris, sin reintentos | Invariante + test 2.4 |
+| Scroll agresivo | `onDisappear` cancela requests en vuelo; `stopCaching` descarta prefetch obsoleto — son mecanismos distintos, ambos obligatorios | §6.2 |
+| Diff masivo sin `changeDetails` | `hasIncrementalChanges = false` → reset de `snapshotAfter` | §4.3 `apply` |
 
 ---
 
 ## 8. Guardarraíles de Verificación en CI
 
-1. **Unit Tests del State Machine (`SwipeEngineViewModelTests`):**
-   - Verificar que `processDecision(.keep)` actualiza `historyStack` y avanza `remainingAssets`.
-   - Verificar que `undoLastDecision()` restaura exactamente el asset anterior en el tope de la cola.
-   - Medir la velocidad de ejecución de 1.000 operaciones de swipe en tests unitarios (< 100 ms total).
-2. **Criterio de Cierre:** Pruebas unitarias de concurrencia y flujo de estados en verde en GitHub Actions.
+1. Unit tests con `FakePhotoLibraryService`: transiciones de permiso, orden inverso, **rango de prefetch exacto** (2.4), aplicación de diffs, cancelación registrada sobre el mock del manager.
+2. Test de invariante: toda petición usa `isNetworkAccessAllowed = false`.
+3. Test de rendimiento con `XCTClockMetric` (criterio 2.5).
+4. **Cierre:** tests verdes en GitHub Actions + cero warnings de concurrencia (heredado de Feature 001).

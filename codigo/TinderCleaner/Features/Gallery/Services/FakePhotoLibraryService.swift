@@ -1,0 +1,95 @@
+import Foundation
+import Photos
+import UIKit
+
+/// Synthetic implementation of PhotoLibraryServiceProtocol for fast, isolated CI testing without PhotoKit.
+public final class FakePhotoLibraryService: PhotoLibraryServiceProtocol, @unchecked Sendable {
+  public var authorizationStatus: PHAuthorizationStatus
+  public var mockAssets: [AssetModel] = []
+  
+  public private(set) var startCachingCalls: [(assets: [AssetModel], targetSize: CGSize)] = []
+  public private(set) var stopCachingCalls: [(assets: [AssetModel], targetSize: CGSize)] = []
+  public private(set) var cancelledRequestIDs: Set<PHImageRequestID> = []
+  
+  private var continuation: AsyncStream<AssetLibraryChange>.Continuation?
+  private var nextRequestID: PHImageRequestID = 1
+
+  public init(
+    authorizationStatus: PHAuthorizationStatus = .authorized,
+    assetCount: Int = 0
+  ) {
+    self.authorizationStatus = authorizationStatus
+    if assetCount > 0 {
+      self.mockAssets = Self.generateSyntheticAssets(count: assetCount)
+    }
+  }
+
+  public func requestAuthorization() async -> PHAuthorizationStatus {
+    authorizationStatus
+  }
+
+  public func fetchAssetCount() async -> Int {
+    mockAssets.count
+  }
+
+  public func fetchAssets(in range: Range<Int>) async -> [AssetModel] {
+    guard !range.isEmpty, range.lowerBound >= 0, range.upperBound <= mockAssets.count else {
+      return []
+    }
+    return Array(mockAssets[range])
+  }
+
+  public func requestThumbnail(
+    for asset: AssetModel,
+    targetSize: CGSize,
+    onRequestID: @Sendable (PHImageRequestID) -> Void
+  ) async -> UIImage? {
+    let reqID = nextRequestID
+    nextRequestID += 1
+    onRequestID(reqID)
+    
+    // Return a dummy image
+    return UIImage()
+  }
+
+  public func cancelImageRequest(_ requestID: PHImageRequestID) {
+    cancelledRequestIDs.insert(requestID)
+  }
+
+  public func startCaching(for assets: [AssetModel], targetSize: CGSize) {
+    startCachingCalls.append((assets: assets, targetSize: targetSize))
+  }
+
+  public func stopCaching(for assets: [AssetModel], targetSize: CGSize) {
+    stopCachingCalls.append((assets: assets, targetSize: targetSize))
+  }
+
+  public func changeStream() -> AsyncStream<AssetLibraryChange> {
+    AsyncStream { continuation in
+      self.continuation = continuation
+    }
+  }
+
+  public func simulateChange(_ change: AssetLibraryChange) {
+    if change.hasIncrementalChanges {
+      self.mockAssets = change.snapshotAfter
+    } else {
+      self.mockAssets = change.snapshotAfter
+    }
+    continuation?.yield(change)
+  }
+
+  public static func generateSyntheticAssets(count: Int) -> [AssetModel] {
+    let baseDate = Date()
+    return (0..<count).map { i in
+      AssetModel(
+        id: "synthetic-asset-\(i)",
+        mediaType: i % 5 == 0 ? .video : .image,
+        duration: i % 5 == 0 ? TimeInterval((i + 1) * 10) : 0,
+        creationDate: baseDate.addingTimeInterval(TimeInterval(-i * 60)),
+        pixelWidth: 1920,
+        pixelHeight: 1080
+      )
+    }
+  }
+}

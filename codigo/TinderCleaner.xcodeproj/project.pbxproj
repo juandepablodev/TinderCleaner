@@ -10,6 +10,19 @@
 		A10000012C50000100000001 /* TinderCleanerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000012C50000100000002 /* TinderCleanerApp.swift */; };
 		A10000012C50000100000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000012C50000100000004 /* Assets.xcassets */; };
 		A10000012C50000100000005 /* NetworkGuardrailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000012C50000100000006 /* NetworkGuardrailTests.swift */; };
+		A20000012C50000100000001 /* AssetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000011 /* AssetModel.swift */; };
+		A20000012C50000100000002 /* AssetLibraryChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000012 /* AssetLibraryChange.swift */; };
+		A20000012C50000100000003 /* PhotoLibraryServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000013 /* PhotoLibraryServiceProtocol.swift */; };
+		A20000012C50000100000004 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000014 /* PhotoLibraryService.swift */; };
+		A20000012C50000100000005 /* FakePhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000015 /* FakePhotoLibraryService.swift */; };
+		A20000012C50000100000006 /* GalleryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000016 /* GalleryViewModel.swift */; };
+		A20000012C50000100000007 /* ThumbnailCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000017 /* ThumbnailCellView.swift */; };
+		A20000012C50000100000008 /* GalleryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000018 /* GalleryGridView.swift */; };
+		A20000012C50000100000009 /* PermissionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C50000100000019 /* PermissionViews.swift */; };
+		A20000012C5000010000000A /* GalleryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C5000010000001A /* GalleryContainerView.swift */; };
+		A20000012C5000010000000B /* GalleryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C5000010000001B /* GalleryViewModelTests.swift */; };
+		A20000012C5000010000000C /* PhotoLibraryServiceInvariantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C5000010000001C /* PhotoLibraryServiceInvariantTests.swift */; };
+		A20000012C5000010000000D /* GalleryPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000012C5000010000001D /* GalleryPerformanceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +42,19 @@
 		A10000012C5000010000000B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10000012C50000100000004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A10000012C50000100000006 /* NetworkGuardrailTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkGuardrailTests.swift; sourceTree = "<group>"; };
+		A20000012C50000100000011 /* AssetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetModel.swift; sourceTree = "<group>"; };
+		A20000012C50000100000012 /* AssetLibraryChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetLibraryChange.swift; sourceTree = "<group>"; };
+		A20000012C50000100000013 /* PhotoLibraryServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryServiceProtocol.swift; sourceTree = "<group>"; };
+		A20000012C50000100000014 /* PhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryService.swift; sourceTree = "<group>"; };
+		A20000012C50000100000015 /* FakePhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakePhotoLibraryService.swift; sourceTree = "<group>"; };
+		A20000012C50000100000016 /* GalleryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewModel.swift; sourceTree = "<group>"; };
+		A20000012C50000100000017 /* ThumbnailCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailCellView.swift; sourceTree = "<group>"; };
+		A20000012C50000100000018 /* GalleryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryGridView.swift; sourceTree = "<group>"; };
+		A20000012C50000100000019 /* PermissionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionViews.swift; sourceTree = "<group>"; };
+		A20000012C5000010000001A /* GalleryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryContainerView.swift; sourceTree = "<group>"; };
+		A20000012C5000010000001B /* GalleryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewModelTests.swift; sourceTree = "<group>"; };
+		A20000012C5000010000001C /* PhotoLibraryServiceInvariantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryServiceInvariantTests.swift; sourceTree = "<group>"; };
+		A20000012C5000010000001D /* GalleryPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryPerformanceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000012C50000100000012 /* App */,
+				A20000012C50000100000020 /* Features */,
 				A10000012C50000100000013 /* Resources */,
 			);
 			path = TinderCleaner;
@@ -76,6 +103,63 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		A20000012C50000100000020 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012C50000100000021 /* Gallery */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		A20000012C50000100000021 /* Gallery */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012C50000100000022 /* Models */,
+				A20000012C50000100000023 /* Services */,
+				A20000012C50000100000024 /* ViewModels */,
+				A20000012C50000100000025 /* Views */,
+			);
+			path = Gallery;
+			sourceTree = "<group>";
+		};
+		A20000012C50000100000022 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012C50000100000011 /* AssetModel.swift */,
+				A20000012C50000100000012 /* AssetLibraryChange.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A20000012C50000100000023 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012C50000100000013 /* PhotoLibraryServiceProtocol.swift */,
+				A20000012C50000100000014 /* PhotoLibraryService.swift */,
+				A20000012C50000100000015 /* FakePhotoLibraryService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A20000012C50000100000024 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012C50000100000016 /* GalleryViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A20000012C50000100000025 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012C50000100000017 /* ThumbnailCellView.swift */,
+				A20000012C50000100000018 /* GalleryGridView.swift */,
+				A20000012C50000100000019 /* PermissionViews.swift */,
+				A20000012C5000010000001A /* GalleryContainerView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		A10000012C50000100000013 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -88,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000012C50000100000014 /* InfrastructureTests */,
+				A20000012C50000100000026 /* GalleryTests */,
 			);
 			path = TinderCleanerTests;
 			sourceTree = "<group>";
@@ -98,6 +183,16 @@
 				A10000012C50000100000006 /* NetworkGuardrailTests.swift */,
 			);
 			path = InfrastructureTests;
+			sourceTree = "<group>";
+		};
+		A20000012C50000100000026 /* GalleryTests */ = {
+			isa = PBXGroup;
+			children = (
+				A20000012C5000010000001B /* GalleryViewModelTests.swift */,
+				A20000012C5000010000001C /* PhotoLibraryServiceInvariantTests.swift */,
+				A20000012C5000010000001D /* GalleryPerformanceTests.swift */,
+			);
+			path = GalleryTests;
 			sourceTree = "<group>";
 		};
 		A10000012C50000100000011 /* Products */ = {
@@ -209,6 +304,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000012C50000100000001 /* TinderCleanerApp.swift in Sources */,
+				A20000012C50000100000001 /* AssetModel.swift in Sources */,
+				A20000012C50000100000002 /* AssetLibraryChange.swift in Sources */,
+				A20000012C50000100000003 /* PhotoLibraryServiceProtocol.swift in Sources */,
+				A20000012C50000100000004 /* PhotoLibraryService.swift in Sources */,
+				A20000012C50000100000005 /* FakePhotoLibraryService.swift in Sources */,
+				A20000012C50000100000006 /* GalleryViewModel.swift in Sources */,
+				A20000012C50000100000007 /* ThumbnailCellView.swift in Sources */,
+				A20000012C50000100000008 /* GalleryGridView.swift in Sources */,
+				A20000012C50000100000009 /* PermissionViews.swift in Sources */,
+				A20000012C5000010000000A /* GalleryContainerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,6 +322,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000012C50000100000005 /* NetworkGuardrailTests.swift in Sources */,
+				A20000012C5000010000000B /* GalleryViewModelTests.swift in Sources */,
+				A20000012C5000010000000C /* PhotoLibraryServiceInvariantTests.swift in Sources */,
+				A20000012C5000010000000D /* GalleryPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
