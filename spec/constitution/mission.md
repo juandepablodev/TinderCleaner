@@ -6,8 +6,8 @@ del iPhone de forma extremadamente ágil: revisar la galería completa en
 minutos, no en horas.
 
 ## Para quién
-Usuarios con la galería saturada (miles de fotos y videos acumuladas) que posponen la
-limpieza porque el flujo nativo de gestión de la es lento y tedioso para decisiones
+Usuarios con la galería saturada (miles de fotos y vídeos acumulados) que posponen la
+limpieza porque el flujo nativo de gestión de la galería es lento y tedioso para decisiones
 masivas.
 
 ## Cómo funciona
@@ -20,13 +20,13 @@ La interfaz se basa en tarjetas deslizables (swipe estilo Tinder):
   30 días). NUNCA se borra nada de forma irreversible desde la app.
 
 ## Valor central: PRIVACIDAD
-Ninguna imagen, video, metadato, estadística o telemetría saldrá jamás del
+Ninguna imagen, vídeo, metadato, estadística o telemetría saldrá jamás del
 dispositivo. La app es 100% local, funciona en Modo Avión y no contiene
 ninguna dependencia con acceso a red. Este principio es irrenunciable: si
 una feature futura lo requiriese, la feature se rechaza.
 
 ## Definición de éxito
-- Revisar 100 fotos y videos en menos de 5 minutos.
+- Revisar 100 fotos y vídeos en menos de 5 minutos.
 - Cero datos enviados fuera del dispositivo (verificable por inspección de
   tráfico en Modo Avión).
 - Cero borrados accidentales irreversibles (siempre pasa por papelera nativa

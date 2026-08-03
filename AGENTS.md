@@ -4,7 +4,6 @@
 > en este repositorio. Lee este archivo COMPLETO antes de escribir una sola
 > línea. Si algo aquí contradice tu intuición, gana este archivo.
 
-
 ## 1. Stack Tecnológico
 - Lenguaje: Swift 6.x (strict concurrency habilitado cuando sea posible).
 - Interfaz: SwiftUI (UIKit solo mediante `UIViewRepresentable` si un control
@@ -12,9 +11,10 @@
 - Frameworks nativos: PhotoKit (gestión de galería), Combine/Swift Concurrency.
 - Persistencia: SwiftData o ficheros en el sandbox de la app (sin backends).
 - Target: iOS 17+ (ajustar según la spec vigente).
-- Build: Xcode + `xcodebuild`. CI/CD: GitHub Actions (`.github/workflows/`).
+- IDE: VS Code / Antigravity (solo edición de código, sin build local).
+- Build: GitHub Actions (macos-latest) - ÚNICO entorno de compilación.
+- Testing: GitHub Actions con simulador de iOS.
 - Dependencias: SOLO código nativo. SPM únicamente si la spec lo justifica.
-
 
 ## 2. Prohibiciones Estrictas (SEGURIDAD Y PRIVACIDAD)
 - PRIVACIDAD ABSOLUTA: la aplicación es 100% local y privada.
@@ -28,7 +28,6 @@
   Sandbox de Apple. Sin App Groups salvo que una spec lo requiera.
 - DATOS: nunca escribir imágenes del usuario fuera del sandbox ni en logs.
   Prohibido loggear rutas, metadatos EXIF o identificadores de assets.
-
 
 ## 3. Patrones de Diseño y Convenciones
 - Arquitectura: MVVM con `@Observable` (Observation framework). Vistas
@@ -46,22 +45,18 @@
     y cancelar `PHImageRequestID` en `onDisappear`/deinit.
   - Responder a `PHPhotoLibraryChangeObserver` para mantener el fetch
     actualizado sin recargar todo.
-- Estilo de código: indentación de 2 espacios... (ajusta a tu gusto, 4 si
-  prefieres el estándar de Apple), nombres en inglés, comentarios solo
+- Estilo de código: indentación de 2 espacios, nombres en inglés, comentarios solo
   para explicar el "porqué", nunca el "qué".
 - Errores: tipos `Error` propios por dominio; nunca `try!` ni force-unwrap
   fuera de tests.
 
-
 ## 4. Flujo de Trabajo del Agente
-1. ANTES de implementar, presenta el plan de cambios y espera aprobación.
-2. Implementa SOLO lo que pide la spec. No añadas features "por si acaso".
-3. DESPUÉS de cada cambio, verifica que compila:
-   `xcodebuild -scheme <Scheme> -destination 'platform=iOS Simulator,name=iPhone 16' build`
-4. Comprueba que la versión de Xcode local coincide con la del README/CI;
-   si difiere, avisa antes de continuar.
-5. Prefiere soluciones simples. No sobre-ingenierices casos triviales.
-
+1. ANTES de implementar, presenta el plan y espera aprobación.
+2. Implementa SOLO lo que pide la spec.
+3. Commit + push a rama `dev`.
+4. GitHub Actions compila y ejecuta tests.
+5. Si CI falla, el agente lee los logs y corrige.
+6. Solo mergear a `main` cuando CI pase al 100%.
 
 ## 5. Estructura del Proyecto (SDD)
 El desarrollo se rige por Spec-Driven Development (SDD):
@@ -72,7 +67,9 @@ El desarrollo se rige por Spec-Driven Development (SDD):
   spec primero.
 - Si el código y la spec divergen, se corrige la spec o el código, pero
   ambos deben quedar alineados antes de mergear.
-- Los criterios de aceptación de la spec se promueven a tests de regresión.
+- Las verificaciones de performance y memoria se hacen SOLO en CI.
+- Los criterios de cierre deben ser verificables en GitHub Actions.
+- Fase 2: "60 fps con 5.000 fotos" se verifica con tests automatizados en simulador CI.
 
 Estructura de carpetas:
 TinderPhoto
@@ -88,9 +85,8 @@ TinderPhoto
 │          │   ├── plan.md  ← Cómo se implementa
 │          │   └── tasks.md ← Checklist de tareas granulares
 │          └── 002-interfaz-galeria/
-│                 
+│                  
 └── código/              ← El código que generará el agente (tu proyecto Xcode)
-
 
 ## 6. Testing
 - Framework: Swift Testing (`@Test`, `#expect`). XCTest solo para UI tests.
@@ -99,7 +95,6 @@ TinderPhoto
 - Mockea PhotoKit detrás de un protocolo para que los tests no toquen
   la galería real.
 - Ejecuta los tests antes de cualquier PR.
-
 
 ## 7. Estilo de Commits y CI/CD
 - Commits en formato Conventional Commits: `feat:`, `fix:`, `refactor:`,

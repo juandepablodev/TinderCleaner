@@ -6,23 +6,24 @@ esté mergeada y verificada en CI.
 
 ## Fase 1 — Setup y CI/CD (001-setup-y-cicd)
 - Proyecto Xcode en `/codigo` con target iOS 17+, Swift 6, strict concurrency.
-- Workflow de GitHub Actions: compila, ejecuta tests y genera `.ipa` firmado.
+- Workflow de GitHub Actions: compila, ejecuta tests y genera `.ipa` sin firmar.
 - Guardarraíl de red en CI.
-- **Criterio de cierre:** un push a `main` produce un `.ipa` instalable.
+- **Criterio de cierre:** un push a `main` produce un `.ipa`.
 
 ## Fase 2 — Carga de galería (002-interfaz-galeria)
 - Solicitud de permisos PhotoKit con estados manejados (autorizado, denegado,
   limitado: cada uno con su UI específica).
 - Grid de miniaturas con `PHCachingImageManager` y prefetch.
 - Orden: cronológico inverso (más reciente primero).
-- **Criterio de cierre:** scroll fluido (60 fps) con una galería de +5.000
-  assets en dispositivo real, sin picos de memoria.
+- **Criterio de cierre:** Tests automatizados en CI pasan con galería de
+  5.000 assets sintéticos. Performance se mide con XCTest Metrics en CI
+  (simulador). Validación en dispositivo real se pospone a TestFlight.
 
 ## Fase 3 — Motor de swipe (003-motor-swipe)
 - Pila de tarjetas con gestos: derecha = conservar, izquierda = marcar para
   borrar.
 - Pre-carga de la imagen full-size de la tarjeta activa y las 2 siguientes.
-- Botones de fallback accesibles (conservar/borrar/deshacer) + VoiceOver.
+- Botones de fallback accesibles (conservar/borrar/deshacer).
 - Acción "deshacer" de la última decisión.
 - **Criterio de cierre:** el gesto responde en <100 ms y deshacer restaura
   siempre el estado correcto.

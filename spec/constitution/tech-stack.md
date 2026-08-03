@@ -4,8 +4,8 @@
 > agente (prohibiciones, estilo, workflow) viven en AGENTS.md en la raíz.
 
 ## Entorno
-- IDE: Xcode 16.x (fijar versión exacta en README; CI usa `macos-latest`
-  con la misma versión vía `xcode-select`).
+- IDE: VS Code / Antigravity (solo edición de código, sin build local).
+- Build environment: GitHub Actions con Xcode 16.x en runners `macos-latest`.
 - Lenguaje: Swift 6 con strict concurrency.
 - UI: SwiftUI + framework Observation (`@Observable`).
 - Arquitectura: MVVM.
