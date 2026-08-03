@@ -97,23 +97,22 @@ public final class SwipeEngineViewModel {
     for asset in window where imageCache[asset.id] == nil && activeRequests[asset.id] == nil {
       let assetID = asset.id
       let size = displayTargetSize
-      Task { [weak self, photoService] in
+      Task { @MainActor [weak self, photoService] in
+        guard let self else { return }
         let image = await photoService.requestThumbnail(
           for: asset,
           targetSize: size,
-          onRequestID: { requestID in
-            Task { @MainActor [weak self] in
-              self?.activeRequests[assetID] = requestID
+          onRequestID: { [weak self] requestID in
+            guard let self else { return }
+            Task { @MainActor [self] in
+              self.activeRequests[assetID] = requestID
             }
           }
         )
         
-        await MainActor.run { [weak self] in
-          guard let self else { return }
-          self.activeRequests.removeValue(forKey: assetID)
-          if let image {
-            self.imageCache[assetID] = image
-          }
+        self.activeRequests.removeValue(forKey: assetID)
+        if let image {
+          self.imageCache[assetID] = image
         }
       }
     }

@@ -81,15 +81,23 @@ public final class FakePhotoLibraryService: PhotoLibraryServiceProtocol, @unchec
 
   public static func generateSyntheticAssets(count: Int) -> [AssetModel] {
     let baseDate = Date()
-    return (0..<count).map { i in
-      AssetModel(
+    var assets: [AssetModel] = []
+    assets.reserveCapacity(count)
+    for i in 0..<count {
+      let isVideo = (i % 5 == 0)
+      let mediaType: PHAssetMediaType = isVideo ? .video : .image
+      let duration: TimeInterval = isVideo ? TimeInterval((i + 1) * 10) : 0.0
+      let creationDate = baseDate.addingTimeInterval(TimeInterval(-i * 60))
+      let asset = AssetModel(
         id: "synthetic-asset-\(i)",
-        mediaType: i % 5 == 0 ? .video : .image,
-        duration: i % 5 == 0 ? TimeInterval((i + 1) * 10) : 0,
-        creationDate: baseDate.addingTimeInterval(TimeInterval(-i * 60)),
+        mediaType: mediaType,
+        duration: duration,
+        creationDate: creationDate,
         pixelWidth: 1920,
         pixelHeight: 1080
       )
+      assets.append(asset)
     }
+    return assets
   }
 }
