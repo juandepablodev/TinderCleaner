@@ -13,10 +13,16 @@ public final class SessionSummaryViewModel {
   public var userMessage: String? = nil
 
   private let deletionService: PhotoKitDeletionServiceProtocol
+  private let persistenceService: SessionPersistenceServiceProtocol
 
-  public init(session: SessionResult, deletionService: PhotoKitDeletionServiceProtocol) {
+  public init(
+    session: SessionResult,
+    deletionService: PhotoKitDeletionServiceProtocol,
+    persistenceService: SessionPersistenceServiceProtocol = SessionPersistenceService()
+  ) {
     self.session = session
     self.deletionService = deletionService
+    self.persistenceService = persistenceService
     Task {
       await computeSize()
     }
@@ -55,6 +61,7 @@ public final class SessionSummaryViewModel {
       let outcome = try await deletionService.deleteAssets(session.pendingDeletion)
       self.deletionOutcome = outcome
       self.deletionCompleted = true
+      persistenceService.clearSavedSession()
     } catch DeletionError.userCancelled {
       self.userMessage = "Operación cancelada. Tus fotos no han sido modificadas."
     } catch DeletionError.deletionFailed(let detail) {

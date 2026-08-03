@@ -30,11 +30,36 @@ public final class SwipeEngineViewModel {
   var activeRequests: [String: PHImageRequestID] = [:]
 
   private let photoService: PhotoLibraryServiceProtocol
+  private let persistenceService: SessionPersistenceServiceProtocol
   public var displayTargetSize: CGSize = CGSize(width: 600, height: 800)
 
-  public init(assets: [AssetModel], photoService: PhotoLibraryServiceProtocol) {
+  public init(
+    assets: [AssetModel],
+    photoService: PhotoLibraryServiceProtocol,
+    persistenceService: SessionPersistenceServiceProtocol = SessionPersistenceService()
+  ) {
     self.remainingAssets = assets
     self.photoService = photoService
+    self.persistenceService = persistenceService
+    preloadWindow()
+  }
+
+  public init(
+    restoringSavedState state: SavedSessionState,
+    allAssets: [AssetModel],
+    photoService: PhotoLibraryServiceProtocol,
+    persistenceService: SessionPersistenceServiceProtocol = SessionPersistenceService()
+  ) {
+    let assetMap = Dictionary(uniqueKeysWithValues: allAssets.map { ($0.id, $0) })
+    
+    self.historyStack = state.classifiedAssets.compactMap { saved in
+      guard let asset = assetMap[saved.assetID] else { return nil }
+      return ClassifiedAsset(asset: asset, decision: saved.decision, timestamp: saved.timestamp)
+    }
+    
+    self.remainingAssets = state.remainingAssetIDs.compactMap { assetMap[$0] }
+    self.photoService = photoService
+    self.persistenceService = persistenceService
     preloadWindow()
   }
 
@@ -51,6 +76,7 @@ public final class SwipeEngineViewModel {
     releaseResources(for: asset)
     remainingAssets.removeFirst()
     preloadWindow()
+    persistCurrentState()
   }
 
   public func swipeAnimationCompleted() {
@@ -61,6 +87,16 @@ public final class SwipeEngineViewModel {
     guard !swipeInFlight, let last = historyStack.popLast() else { return }
     remainingAssets.insert(last.asset, at: 0)
     preloadWindow()
+    persistCurrentState()
+  }
+
+  private func persistCurrentState() {
+    let savedClassified = historyStack.map {
+      SavedClassifiedAsset(assetID: $0.asset.id, decision: $0.decision, timestamp: $0.timestamp)
+    }
+    let remainingIDs = remainingAssets.map(\.id)
+    let state = SavedSessionState(lastModified: Date(), classifiedAssets: savedClassified, remainingAssetIDs: remainingIDs)
+    persistenceService.saveSession(state)
   }
 
   public func image(for asset: AssetModel) -> UIImage? {

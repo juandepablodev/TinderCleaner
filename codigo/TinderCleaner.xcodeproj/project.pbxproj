@@ -45,6 +45,11 @@
 		A40000012C50000100000009 /* DeletionSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000019 /* DeletionSuccessView.swift */; };
 		A40000012C5000010000000A /* SessionSummaryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C5000010000001A /* SessionSummaryContainerView.swift */; };
 		A40000012C5000010000000B /* SessionSummaryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C5000010000001B /* SessionSummaryViewModelTests.swift */; };
+		A50000012C50000100000001 /* SavedSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000012C50000100000011 /* SavedSessionState.swift */; };
+		A50000012C50000100000002 /* SessionPersistenceServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000012C50000100000012 /* SessionPersistenceServiceProtocol.swift */; };
+		A50000012C50000100000003 /* SessionPersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000012C50000100000013 /* SessionPersistenceService.swift */; };
+		A50000012C50000100000004 /* FakeSessionPersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000012C50000100000014 /* FakeSessionPersistenceService.swift */; };
+		A50000012C50000100000005 /* SessionPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000012C50000100000015 /* SessionPersistenceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +104,11 @@
 		A40000012C50000100000019 /* DeletionSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionSuccessView.swift; sourceTree = "<group>"; };
 		A40000012C5000010000001A /* SessionSummaryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryContainerView.swift; sourceTree = "<group>"; };
 		A40000012C5000010000001B /* SessionSummaryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryViewModelTests.swift; sourceTree = "<group>"; };
+		A50000012C50000100000011 /* SavedSessionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedSessionState.swift; sourceTree = "<group>"; };
+		A50000012C50000100000012 /* SessionPersistenceServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistenceServiceProtocol.swift; sourceTree = "<group>"; };
+		A50000012C50000100000013 /* SessionPersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistenceService.swift; sourceTree = "<group>"; };
+		A50000012C50000100000014 /* FakeSessionPersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeSessionPersistenceService.swift; sourceTree = "<group>"; };
+		A50000012C50000100000015 /* SessionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPersistenceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -488,6 +498,10 @@
 				A40000012C50000100000008 /* SummaryHeaderView.swift in Sources */,
 				A40000012C50000100000009 /* DeletionSuccessView.swift in Sources */,
 				A40000012C5000010000000A /* SessionSummaryContainerView.swift in Sources */,
+				A50000012C50000100000001 /* SavedSessionState.swift in Sources */,
+				A50000012C50000100000002 /* SessionPersistenceServiceProtocol.swift in Sources */,
+				A50000012C50000100000003 /* SessionPersistenceService.swift in Sources */,
+				A50000012C50000100000004 /* FakeSessionPersistenceService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,6 +515,7 @@
 				A20000012C5000010000000D /* GalleryPerformanceTests.swift in Sources */,
 				A30000012C5000010000000A /* SwipeEngineViewModelTests.swift in Sources */,
 				A40000012C5000010000000B /* SessionSummaryViewModelTests.swift in Sources */,
+				A50000012C50000100000005 /* SessionPersistenceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

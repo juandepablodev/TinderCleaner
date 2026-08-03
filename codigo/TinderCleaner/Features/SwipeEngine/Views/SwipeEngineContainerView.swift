@@ -4,8 +4,16 @@ public struct SwipeEngineContainerView: View {
   @State private var viewModel: SwipeEngineViewModel
   @Environment(\.dismiss) private var dismiss
 
-  public init(assets: [AssetModel], photoService: PhotoLibraryServiceProtocol = PhotoLibraryService()) {
-    _viewModel = State(initialValue: SwipeEngineViewModel(assets: assets, photoService: photoService))
+  public init(
+    assets: [AssetModel],
+    savedState: SavedSessionState? = nil,
+    photoService: PhotoLibraryServiceProtocol = PhotoLibraryService()
+  ) {
+    if let savedState {
+      _viewModel = State(initialValue: SwipeEngineViewModel(restoringSavedState: savedState, allAssets: assets, photoService: photoService))
+    } else {
+      _viewModel = State(initialValue: SwipeEngineViewModel(assets: assets, photoService: photoService))
+    }
   }
 
   public var body: some View {

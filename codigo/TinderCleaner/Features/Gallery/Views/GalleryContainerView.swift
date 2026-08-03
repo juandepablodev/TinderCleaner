@@ -23,14 +23,31 @@ public struct GalleryContainerView: View {
           GalleryGridView(viewModel: viewModel)
             .safeAreaInset(edge: .bottom) {
               if !viewModel.assets.isEmpty {
-                NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets)) {
-                  Text("Revisar Fotos")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                VStack(spacing: 8) {
+                  let persistence = SessionPersistenceService()
+                  if let savedState = persistence.loadSavedSession(), !savedState.classifiedAssets.isEmpty {
+                    NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets, savedState: savedState)) {
+                      HStack {
+                        Image(systemName: "clock.arrow.circlepath")
+                        Text("Continuar Sesión (\(savedState.classifiedAssets.count) revisadas)")
+                          .font(.headline)
+                      }
+                      .frame(maxWidth: .infinity)
+                      .padding(.vertical, 12)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                  }
+
+                  NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets)) {
+                    Text("Nueva Sesión")
+                      .font(.headline)
+                      .frame(maxWidth: .infinity)
+                      .padding(.vertical, 12)
+                  }
+                  .buttonStyle(.bordered)
+                  .tint(.blue)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.blue)
                 .padding()
                 .background(.ultraThinMaterial)
               }
@@ -55,14 +72,31 @@ public struct GalleryContainerView: View {
             GalleryGridView(viewModel: viewModel)
               .safeAreaInset(edge: .bottom) {
                 if !viewModel.assets.isEmpty {
-                  NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets)) {
-                    Text("Revisar Fotos")
-                      .font(.headline)
-                      .frame(maxWidth: .infinity)
-                      .padding(.vertical, 14)
+                  VStack(spacing: 8) {
+                    let persistence = SessionPersistenceService()
+                    if let savedState = persistence.loadSavedSession(), !savedState.classifiedAssets.isEmpty {
+                      NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets, savedState: savedState)) {
+                        HStack {
+                          Image(systemName: "clock.arrow.circlepath")
+                          Text("Continuar Sesión (\(savedState.classifiedAssets.count) revisadas)")
+                            .font(.headline)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                      }
+                      .buttonStyle(.borderedProminent)
+                      .tint(.orange)
+                    }
+
+                    NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets)) {
+                      Text("Nueva Sesión")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.blue)
                   }
-                  .buttonStyle(.borderedProminent)
-                  .tint(.blue)
                   .padding()
                   .background(.ultraThinMaterial)
                 }
