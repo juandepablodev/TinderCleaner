@@ -4,7 +4,7 @@ import Foundation
 
 @Suite struct NetworkGuardrailTests {
   @Test func testInfoPlistDoesNotAllowArbitraryLoads() throws {
-    let bundle = Bundle(for: BundleClass.self)
+    let bundle = Bundle.main
     let infoPlist = bundle.infoDictionary
     
     let keySecurity = "NSAppTransport" + "Security"
@@ -15,7 +15,7 @@ import Foundation
   }
 
   @Test func testPhotoLibraryUsageDescriptionIsPresentAndValid() throws {
-    let bundle = Bundle(for: BundleClass.self)
+    let bundle = Bundle.main
     let usageDescription = bundle.object(forInfoDictionaryKey: "NSPhotoLibraryUsageDescription") as? String
     
     #expect(usageDescription != nil, "NSPhotoLibraryUsageDescription must be defined")

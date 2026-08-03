@@ -42,7 +42,7 @@ public final class SessionSummaryViewModel {
   }
 
   public func executeBatchDeletion() async {
-    guard !deletionInFlight, !session.pendingDeletion.isEmpty else { return }
+    guard !deletionInFlight, !deletionCompleted, !session.pendingDeletion.isEmpty else { return }
     deletionInFlight = true
     isDeleting = true
     userMessage = nil
