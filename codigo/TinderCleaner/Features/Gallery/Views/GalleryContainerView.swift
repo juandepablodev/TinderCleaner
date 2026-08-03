@@ -21,6 +21,20 @@ public struct GalleryContainerView: View {
 
         case .authorized:
           GalleryGridView(viewModel: viewModel)
+            .safeAreaInset(edge: .bottom) {
+              if !viewModel.assets.isEmpty {
+                NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets)) {
+                  Text("Revisar Fotos")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .padding()
+                .background(.ultraThinMaterial)
+              }
+            }
 
         case .limited:
           VStack(spacing: 0) {
@@ -39,6 +53,20 @@ public struct GalleryContainerView: View {
             .background(Color.orange.opacity(0.1))
 
             GalleryGridView(viewModel: viewModel)
+              .safeAreaInset(edge: .bottom) {
+                if !viewModel.assets.isEmpty {
+                  NavigationLink(destination: SwipeEngineContainerView(assets: viewModel.assets)) {
+                    Text("Revisar Fotos")
+                      .font(.headline)
+                      .frame(maxWidth: .infinity)
+                      .padding(.vertical, 14)
+                  }
+                  .buttonStyle(.borderedProminent)
+                  .tint(.blue)
+                  .padding()
+                  .background(.ultraThinMaterial)
+                }
+              }
           }
           .sheet(isPresented: $showLimitedPicker) {
             NavigationStack {

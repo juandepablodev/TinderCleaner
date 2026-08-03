@@ -40,6 +40,11 @@ public struct SwipeEngineContainerView: View {
             .foregroundStyle(.green)
         } description: {
           Text("You have reviewed all photos in this session.\n\(viewModel.pendingDeletionCount) items marked for deletion.")
+        } actions: {
+          NavigationLink(destination: SessionSummaryContainerView(session: viewModel.sessionResult)) {
+            Text("Ver Resumen")
+          }
+          .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       } else {
@@ -65,5 +70,13 @@ public struct SwipeEngineContainerView: View {
     }
     .navigationTitle("Review Photos")
     .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .primaryAction) {
+        NavigationLink(destination: SessionSummaryContainerView(session: viewModel.sessionResult)) {
+          Text("Terminar")
+        }
+        .disabled(viewModel.historyStack.isEmpty)
+      }
+    }
   }
 }
