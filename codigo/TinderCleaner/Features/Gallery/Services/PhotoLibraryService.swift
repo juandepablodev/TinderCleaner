@@ -8,6 +8,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
   private let imageManager: PHCachingImageManager
   private let photoLibrary: PHPhotoLibrary
   private var fetchResult: PHFetchResult<PHAsset>?
+  private var assetIndex: [String: PHAsset] = [:]
   private var continuation: AsyncStream<AssetLibraryChange>.Continuation?
 
   public init(
@@ -66,8 +67,8 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
 
     let options = PHImageRequestOptions()
     options.isNetworkAccessAllowed = false // Privacy invariant: local-only access
-    options.deliveryMode = .highQualityFormat
-    options.resizeMode = .exact
+    options.deliveryMode = .opportunistic
+    options.resizeMode = .fast
     options.isSynchronous = false
 
     let state = RequestState()
@@ -80,13 +81,13 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
           contentMode: .aspectFill,
           options: options
         ) { image, info in
-          let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
           let isCancelled = (info?[PHImageCancelledKey] as? Bool) ?? false
           let isError = info?[PHImageErrorKey] != nil
           
-          let isFinal = !isDegraded || isCancelled || isError
-          if isFinal {
+          if let image {
             state.resumeOnce(continuation: continuation, image: image)
+          } else if isCancelled || isError {
+            state.resumeOnce(continuation: continuation, image: nil)
           }
         }
         state.setRequestID(reqID)
@@ -96,6 +97,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
       if let reqID = state.getRequestID() {
         imageManager.cancelImageRequest(reqID)
       }
+      state.cancelAndResume(continuation: nil)
     }
   }
 
@@ -133,6 +135,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
       if let reqID = state.getRequestID() {
         imageManager.cancelImageRequest(reqID)
       }
+      state.cancelAndResume(continuation: nil)
     }
   }
 
@@ -145,6 +148,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
     guard !phAssets.isEmpty else { return }
     let options = PHImageRequestOptions()
     options.isNetworkAccessAllowed = false
+    options.resizeMode = .fast
     imageManager.startCachingImages(for: phAssets, targetSize: targetSize, contentMode: .aspectFill, options: options)
   }
 
@@ -153,6 +157,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
     guard !phAssets.isEmpty else { return }
     let options = PHImageRequestOptions()
     options.isNetworkAccessAllowed = false
+    options.resizeMode = .fast
     imageManager.stopCachingImages(for: phAssets, targetSize: targetSize, contentMode: .aspectFill, options: options)
   }
 
@@ -172,10 +177,21 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
     fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
     let result = PHAsset.fetchAssets(with: fetchOptions)
     self.fetchResult = result
+    
+    var index: [String: PHAsset] = [:]
+    index.reserveCapacity(result.count)
+    result.enumerateObjects { asset, _, _ in
+      index[asset.localIdentifier] = asset
+    }
+    self.assetIndex = index
+    
     return result
   }
 
   private func fetchPHAsset(with id: String, in result: PHFetchResult<PHAsset>) -> PHAsset? {
+    if let phAsset = assetIndex[id] {
+      return phAsset
+    }
     let options = PHFetchOptions()
     return PHAsset.fetchAssets(withLocalIdentifiers: [id], options: options).firstObject
   }
@@ -183,11 +199,12 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
   private func resolvePHAssets(for assets: [AssetModel]) -> [PHAsset] {
     let identifiers = assets.map(\.id)
     guard !identifiers.isEmpty else { return [] }
-    let options = PHFetchOptions()
-    let result = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: options)
     var phAssets: [PHAsset] = []
-    result.enumerateObjects { asset, _, _ in
-      phAssets.append(asset)
+    phAssets.reserveCapacity(identifiers.count)
+    for id in identifiers {
+      if let phAsset = fetchPHAsset(with: id, in: getOrFetchResult()) {
+        phAssets.append(phAsset)
+      }
     }
     return phAssets
   }
@@ -200,13 +217,19 @@ extension PhotoLibraryService: PHPhotoLibraryChangeObserver {
       return
     }
 
-    self.fetchResult = details.fetchResultAfterChanges
+    let newResult = details.fetchResultAfterChanges
+    self.fetchResult = newResult
     
+    var index: [String: PHAsset] = [:]
+    index.reserveCapacity(newResult.count)
     var snapshot: [AssetModel] = []
-    snapshot.reserveCapacity(details.fetchResultAfterChanges.count)
-    details.fetchResultAfterChanges.enumerateObjects { asset, _, _ in
+    snapshot.reserveCapacity(newResult.count)
+    
+    newResult.enumerateObjects { asset, _, _ in
+      index[asset.localIdentifier] = asset
       snapshot.append(asset.toAssetModel())
     }
+    self.assetIndex = index
 
     let change = AssetLibraryChange(
       inserted: details.insertedIndexes ?? IndexSet(),
@@ -237,6 +260,7 @@ private final class RequestState: @unchecked Sendable {
   private let lock = NSLock()
   private var requestID: PHImageRequestID?
   private var hasResumed = false
+  private var storedContinuation: CheckedContinuation<UIImage?, Never>?
 
   func setRequestID(_ id: PHImageRequestID) {
     lock.lock()
@@ -255,11 +279,26 @@ private final class RequestState: @unchecked Sendable {
     let alreadyResumed = hasResumed
     if !alreadyResumed {
       hasResumed = true
+    } else {
+      storedContinuation = continuation
     }
     lock.unlock()
 
     if !alreadyResumed {
       continuation.resume(returning: image)
+    }
+  }
+
+  func cancelAndResume(continuation: CheckedContinuation<UIImage?, Never>?) {
+    lock.lock()
+    let alreadyResumed = hasResumed
+    hasResumed = true
+    let contToResume = storedContinuation ?? continuation
+    storedContinuation = nil
+    lock.unlock()
+
+    if !alreadyResumed {
+      contToResume?.resume(returning: nil)
     }
   }
 }
@@ -268,6 +307,7 @@ private final class RequestStateVideo: @unchecked Sendable {
   private let lock = NSLock()
   private var requestID: PHImageRequestID?
   private var hasResumed = false
+  private var storedContinuation: CheckedContinuation<AVPlayerItem?, Never>?
 
   func setRequestID(_ id: PHImageRequestID) {
     lock.lock()
@@ -286,6 +326,8 @@ private final class RequestStateVideo: @unchecked Sendable {
     let alreadyResumed = hasResumed
     if !alreadyResumed {
       hasResumed = true
+    } else {
+      storedContinuation = continuation
     }
     lock.unlock()
 
@@ -293,5 +335,19 @@ private final class RequestStateVideo: @unchecked Sendable {
       continuation.resume(returning: playerItem)
     }
   }
+
+  func cancelAndResume(continuation: CheckedContinuation<AVPlayerItem?, Never>?) {
+    lock.lock()
+    let alreadyResumed = hasResumed
+    hasResumed = true
+    let contToResume = storedContinuation ?? continuation
+    storedContinuation = nil
+    lock.unlock()
+
+    if !alreadyResumed {
+      contToResume?.resume(returning: nil)
+    }
+  }
 }
+
 

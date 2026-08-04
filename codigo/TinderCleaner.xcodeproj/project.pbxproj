@@ -44,6 +44,7 @@
 		A40000012C50000100000008 /* SummaryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000018 /* SummaryHeaderView.swift */; };
 		A40000012C50000100000009 /* DeletionSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C50000100000019 /* DeletionSuccessView.swift */; };
 		A40000012C5000010000000A /* SessionSummaryContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C5000010000001A /* SessionSummaryContainerView.swift */; };
+		A40000012C5000010000000C /* SummaryItemThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C5000010000001C /* SummaryItemThumbnailView.swift */; };
 		A40000012C5000010000000B /* SessionSummaryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000012C5000010000001B /* SessionSummaryViewModelTests.swift */; };
 		A50000012C50000100000001 /* SavedSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000012C50000100000011 /* SavedSessionState.swift */; };
 		A50000012C50000100000002 /* SessionPersistenceServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000012C50000100000012 /* SessionPersistenceServiceProtocol.swift */; };
@@ -103,6 +104,7 @@
 		A40000012C50000100000018 /* SummaryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryHeaderView.swift; sourceTree = "<group>"; };
 		A40000012C50000100000019 /* DeletionSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionSuccessView.swift; sourceTree = "<group>"; };
 		A40000012C5000010000001A /* SessionSummaryContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryContainerView.swift; sourceTree = "<group>"; };
+		A40000012C5000010000001C /* SummaryItemThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryItemThumbnailView.swift; sourceTree = "<group>"; };
 		A40000012C5000010000001B /* SessionSummaryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryViewModelTests.swift; sourceTree = "<group>"; };
 		A50000012C50000100000011 /* SavedSessionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinderCleaner/Features/SessionPersistence/Models/SavedSessionState.swift; sourceTree = "<group>"; };
 		A50000012C50000100000012 /* SessionPersistenceServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinderCleaner/Features/SessionPersistence/Services/SessionPersistenceServiceProtocol.swift; sourceTree = "<group>"; };
@@ -302,6 +304,7 @@
 				A40000012C50000100000018 /* SummaryHeaderView.swift */,
 				A40000012C50000100000019 /* DeletionSuccessView.swift */,
 				A40000012C5000010000001A /* SessionSummaryContainerView.swift */,
+				A40000012C5000010000001C /* SummaryItemThumbnailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -498,6 +501,7 @@
 				A40000012C50000100000008 /* SummaryHeaderView.swift in Sources */,
 				A40000012C50000100000009 /* DeletionSuccessView.swift in Sources */,
 				A40000012C5000010000000A /* SessionSummaryContainerView.swift in Sources */,
+				A40000012C5000010000000C /* SummaryItemThumbnailView.swift in Sources */,
 				A50000012C50000100000001 /* SavedSessionState.swift in Sources */,
 				A50000012C50000100000002 /* SessionPersistenceServiceProtocol.swift in Sources */,
 				A50000012C50000100000003 /* SessionPersistenceService.swift in Sources */,

@@ -51,24 +51,7 @@ public struct SessionSummaryContainerView: View {
               ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                   ForEach(viewModel.session.pendingDeletion) { asset in
-                    ZStack(alignment: .topTrailing) {
-                      RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(width: 80, height: 80)
-                        .overlay {
-                          if asset.isVideo {
-                            Image(systemName: "video.fill")
-                              .foregroundStyle(.white)
-                          } else {
-                            Image(systemName: "photo")
-                              .foregroundStyle(.gray)
-                          }
-                        }
-
-                      Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.red)
-                        .padding(4)
-                    }
+                    SummaryItemThumbnailView(asset: asset)
                   }
                 }
                 .padding(.horizontal, 20)

@@ -124,7 +124,7 @@ public final class SwipeEngineViewModel {
   }
 
   public func preloadWindow() {
-    let window = Array(remainingAssets.prefix(3))
+    let window = Array(remainingAssets.prefix(5))
     let wantedIDs = Set(window.map(\.id))
 
     // Cancel requests for assets that fell out of the prefetch window
