@@ -69,7 +69,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
     let options = PHImageRequestOptions()
     options.isNetworkAccessAllowed = false // Privacy invariant: local-only access
     options.deliveryMode = .highQualityFormat
-    options.resizeMode = .fast
+    options.resizeMode = .exact
     options.isSynchronous = false
 
     let state = RequestState()

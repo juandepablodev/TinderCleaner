@@ -30,81 +30,64 @@ struct CardView: View {
     ZStack(alignment: .top) {
       // Main Card Background & Media Content
       RoundedRectangle(cornerRadius: 24)
-        .fill(Color(uiColor: .secondarySystemGroupedBackground))
-        .shadow(color: .black.opacity(0.18), radius: 14, x: 0, y: 6)
+        .fill(Color(uiColor: .black))
+        .shadow(color: .black.opacity(0.3), radius: 16, x: 0, y: 8)
         .overlay {
-          ZStack(alignment: .bottomTrailing) {
+          ZStack(alignment: .center) {
+            // Media Content (Video or Image)
             if asset.isVideo && isTopCard, let player {
-              ZStack {
-                if let image {
-                  Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .blur(radius: 25)
-                    .opacity(0.45)
-                    .clipped()
+              VideoPlayerView(player: player)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .padding(8)
+                .overlay(alignment: .bottomLeading) {
+                  Button {
+                    isMuted.toggle()
+                    player.isMuted = isMuted
+                  } label: {
+                    Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                      .font(.body.bold())
+                      .foregroundStyle(.white)
+                      .padding(10)
+                      .background(.ultraThinMaterial)
+                      .clipShape(Circle())
+                  }
+                  .padding(20)
                 }
-
-                VideoPlayerView(player: player)
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-                  .clipped()
-              }
-              .overlay(alignment: .bottomLeading) {
-                Button {
-                  isMuted.toggle()
-                  player.isMuted = isMuted
-                } label: {
-                  Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                    .font(.body.bold())
-                    .foregroundStyle(.white)
-                    .padding(10)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-                }
-                .padding(14)
-              }
             } else if let image {
-              ZStack {
-                // Blurred fill background for landscape / non-standard aspect ratio photos
-                Image(uiImage: image)
-                  .resizable()
-                  .scaledToFill()
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-                  .blur(radius: 25)
-                  .opacity(0.45)
-                  .clipped()
-
-                // Full photo scaled to fit cleanly without cropping any edges
-                Image(uiImage: image)
-                  .resizable()
-                  .scaledToFit()
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-                  .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 4)
-              }
+              Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .padding(8)
+                .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
             } else {
-              Rectangle()
-                .fill(Color(uiColor: .tertiarySystemFill))
-                .overlay {
-                  ProgressView()
-                    .scaleEffect(1.2)
-                }
+              ProgressView()
+                .tint(.white)
+                .scaleEffect(1.2)
             }
 
             // Video Duration & Type Badge
             if asset.isVideo {
-              HStack(spacing: 6) {
-                Image(systemName: "video.fill")
-                  .font(.caption.bold())
-                Text(asset.formattedDuration)
-                  .font(.caption.bold())
+              VStack {
+                Spacer()
+                HStack {
+                  Spacer()
+                  HStack(spacing: 6) {
+                    Image(systemName: "video.fill")
+                      .font(.caption.bold())
+                    Text(asset.formattedDuration)
+                      .font(.caption.bold())
+                  }
+                  .foregroundStyle(.white)
+                  .padding(.horizontal, 12)
+                  .padding(.vertical, 6)
+                  .background(Color.black.opacity(0.75))
+                  .clipShape(Capsule())
+                  .padding(20)
+                }
               }
-              .foregroundStyle(.white)
-              .padding(.horizontal, 10)
-              .padding(.vertical, 6)
-              .background(.ultraThinMaterial)
-              .clipShape(Capsule())
-              .padding(14)
             }
           }
         }

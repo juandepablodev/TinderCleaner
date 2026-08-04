@@ -138,46 +138,48 @@ public final class SwipeEngineViewModel {
     }
 
     // Request thumbnails/video items for missing items in the window
-    for asset in window where imageCache[asset.id] == nil && activeRequests[asset.id] == nil {
+    for asset in window {
       let assetID = asset.id
       let size = displayTargetSize
-      
-      // Mark as active synchronously to prevent duplicate Tasks while waiting for the real ID
-      activeRequests[assetID] = PHInvalidImageRequestID
-      
-      Task { @MainActor [weak self, photoService] in
-        guard let self else { return }
-        let image = await photoService.requestThumbnail(
-          for: asset,
-          targetSize: size,
-          onRequestID: { [weak self] requestID in
-            guard let self else { return }
-            Task { @MainActor [self] in
-              if self.activeRequests[assetID] != nil {
-                self.activeRequests[assetID] = requestID
-              } else {
-                self.photoService.cancelImageRequest(requestID)
-              }
-            }
-          },
-          onProgressiveUpdate: { [weak self] highResImage in
-            Task { @MainActor [self] in
+
+      // 1. Fetch photo thumbnail if missing
+      if imageCache[assetID] == nil && activeRequests[assetID] == nil {
+        activeRequests[assetID] = PHInvalidImageRequestID
+
+        Task { @MainActor [weak self, photoService] in
+          guard let self else { return }
+          let image = await photoService.requestThumbnail(
+            for: asset,
+            targetSize: size,
+            onRequestID: { [weak self] requestID in
               guard let self else { return }
-              if self.activeRequests[assetID] != nil || self.imageCache[assetID] != nil {
+              Task { @MainActor [self] in
+                if self.activeRequests[assetID] != nil {
+                  self.activeRequests[assetID] = requestID
+                } else {
+                  self.photoService.cancelImageRequest(requestID)
+                }
+              }
+            },
+            onProgressiveUpdate: { [weak self] highResImage in
+              Task { @MainActor [self] in
+                guard let self else { return }
                 self.imageCache[assetID] = highResImage
               }
             }
-          }
-        )
-        
-        let wasActive = self.activeRequests[assetID] != nil
-        self.activeRequests.removeValue(forKey: assetID)
-        if wasActive, let image {
-          self.imageCache[assetID] = image
-        }
+          )
 
-        // If it's a video asset, also request the AVPlayerItem for video playback
-        if wasActive && asset.isVideo && self.playerItemCache[assetID] == nil {
+          self.activeRequests.removeValue(forKey: assetID)
+          if let image {
+            self.imageCache[assetID] = image
+          }
+        }
+      }
+
+      // 2. Fetch AVPlayerItem for video playback if missing
+      if asset.isVideo && playerItemCache[assetID] == nil {
+        Task { @MainActor [weak self, photoService] in
+          guard let self else { return }
           let item = await photoService.requestPlayerItem(
             for: asset,
             onRequestID: { _ in }
