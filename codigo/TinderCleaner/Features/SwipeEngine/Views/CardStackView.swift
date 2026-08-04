@@ -47,7 +47,7 @@ struct CardStackView: View {
               }
           )
           .onAppear {
-            let targetSize = CGSize(width: 1200, height: 1600)
+            let targetSize = CGSize(width: 900, height: 1200)
             viewModel.updateDisplayTargetSize(targetSize)
           }
         }

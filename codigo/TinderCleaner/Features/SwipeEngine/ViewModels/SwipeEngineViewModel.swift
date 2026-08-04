@@ -24,14 +24,15 @@ public final class SwipeEngineViewModel {
     return SessionResult(keep: keep, pendingDeletion: delete)
   }
 
-  // Bounded image & video cache and active requests (Invariants: count <= 3)
+  // Bounded image & video cache and active requests
   var imageCache: [String: UIImage] = [:]
   var playerItemCache: [String: AVPlayerItem] = [:]
   var activeRequests: [String: PHImageRequestID] = [:]
+  private var activeVideoRequests: Set<String> = []
 
   private let photoService: PhotoLibraryServiceProtocol
   private let persistenceService: SessionPersistenceServiceProtocol
-  public var displayTargetSize: CGSize = CGSize(width: 1200, height: 1600)
+  public var displayTargetSize: CGSize = CGSize(width: 900, height: 1200)
 
   public init(
     assets: [AssetModel],
@@ -119,12 +120,13 @@ public final class SwipeEngineViewModel {
     if let requestID = activeRequests.removeValue(forKey: asset.id) {
       photoService.cancelImageRequest(requestID)
     }
+    activeVideoRequests.remove(asset.id)
     imageCache.removeValue(forKey: asset.id)
     playerItemCache.removeValue(forKey: asset.id)
   }
 
   public func preloadWindow() {
-    let window = Array(remainingAssets.prefix(5))
+    let window = Array(remainingAssets.prefix(3))
     let wantedIDs = Set(window.map(\.id))
 
     // Cancel requests for assets that fell out of the prefetch window
@@ -133,16 +135,16 @@ public final class SwipeEngineViewModel {
       if let reqID = activeRequests.removeValue(forKey: id) {
         photoService.cancelImageRequest(reqID)
       }
+      activeVideoRequests.remove(id)
       imageCache.removeValue(forKey: id)
       playerItemCache.removeValue(forKey: id)
     }
 
-    // Request thumbnails/video items for missing items in the window
     for asset in window {
       let assetID = asset.id
       let size = displayTargetSize
 
-      // 1. Fetch photo thumbnail if missing
+      // 1. Fetch image if not cached and not already in flight
       if imageCache[assetID] == nil && activeRequests[assetID] == nil {
         activeRequests[assetID] = PHInvalidImageRequestID
 
@@ -176,14 +178,17 @@ public final class SwipeEngineViewModel {
         }
       }
 
-      // 2. Fetch AVPlayerItem for video playback if missing
-      if asset.isVideo && playerItemCache[assetID] == nil {
+      // 2. Fetch AVPlayerItem for video if not cached and not already in flight
+      if asset.isVideo && playerItemCache[assetID] == nil && !activeVideoRequests.contains(assetID) {
+        activeVideoRequests.insert(assetID)
+
         Task { @MainActor [weak self, photoService] in
           guard let self else { return }
           let item = await photoService.requestPlayerItem(
             for: asset,
             onRequestID: { _ in }
           )
+          self.activeVideoRequests.remove(assetID)
           if let item {
             self.playerItemCache[assetID] = item
           }
