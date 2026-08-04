@@ -68,7 +68,7 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
 
     let options = PHImageRequestOptions()
     options.isNetworkAccessAllowed = false // Privacy invariant: local-only access
-    options.deliveryMode = .opportunistic
+    options.deliveryMode = .highQualityFormat
     options.resizeMode = .fast
     options.isSynchronous = false
 
@@ -122,18 +122,20 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
 
     let options = PHVideoRequestOptions()
     options.isNetworkAccessAllowed = false
-    options.deliveryMode = .highQualityFormat
+    options.deliveryMode = .automatic
+    options.version = .current
 
     let state = RequestStateVideo()
 
     return await withTaskCancellationHandler {
       await withCheckedContinuation { continuation in
-        let reqID = imageManager.requestPlayerItem(forVideo: phAsset, options: options) { playerItem, info in
+        let reqID = imageManager.requestAVAsset(forVideo: phAsset, options: options) { avAsset, audioMix, info in
           let isCancelled = (info?[PHImageCancelledKey] as? Bool) ?? false
           let isError = info?[PHImageErrorKey] != nil
 
-          if let playerItem, !isCancelled && !isError {
-            state.resumeOnce(continuation: continuation, playerItem: playerItem)
+          if let avAsset, !isCancelled && !isError {
+            let item = AVPlayerItem(asset: avAsset)
+            state.resumeOnce(continuation: continuation, playerItem: item)
           } else {
             state.resumeOnce(continuation: continuation, playerItem: nil)
           }

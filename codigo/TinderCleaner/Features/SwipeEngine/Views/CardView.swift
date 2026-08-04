@@ -35,23 +35,35 @@ struct CardView: View {
         .overlay {
           ZStack(alignment: .bottomTrailing) {
             if asset.isVideo && isTopCard, let player {
-              VideoPlayerView(player: player)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                .overlay(alignment: .bottomLeading) {
-                  Button {
-                    isMuted.toggle()
-                    player.isMuted = isMuted
-                  } label: {
-                    Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                      .font(.body.bold())
-                      .foregroundStyle(.white)
-                      .padding(10)
-                      .background(.ultraThinMaterial)
-                      .clipShape(Circle())
-                  }
-                  .padding(14)
+              ZStack {
+                if let image {
+                  Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .blur(radius: 25)
+                    .opacity(0.45)
+                    .clipped()
                 }
+
+                VideoPlayerView(player: player)
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+                  .clipped()
+              }
+              .overlay(alignment: .bottomLeading) {
+                Button {
+                  isMuted.toggle()
+                  player.isMuted = isMuted
+                } label: {
+                  Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                    .font(.body.bold())
+                    .foregroundStyle(.white)
+                    .padding(10)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Circle())
+                }
+                .padding(14)
+              }
             } else if let image {
               ZStack {
                 // Blurred fill background for landscape / non-standard aspect ratio photos
