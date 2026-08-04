@@ -13,7 +13,8 @@ public protocol PhotoLibraryServiceProtocol: Sendable {
   func requestThumbnail(
     for asset: AssetModel,
     targetSize: CGSize,
-    onRequestID: @Sendable (PHImageRequestID) -> Void
+    onRequestID: @Sendable (PHImageRequestID) -> Void,
+    onProgressiveUpdate: (@Sendable (UIImage) -> Void)?
   ) async -> UIImage?
   
   func requestPlayerItem(
@@ -25,4 +26,14 @@ public protocol PhotoLibraryServiceProtocol: Sendable {
   func startCaching(for assets: [AssetModel], targetSize: CGSize)
   func stopCaching(for assets: [AssetModel], targetSize: CGSize)
   func changeStream() -> AsyncStream<AssetLibraryChange>
+}
+
+public extension PhotoLibraryServiceProtocol {
+  func requestThumbnail(
+    for asset: AssetModel,
+    targetSize: CGSize,
+    onRequestID: @Sendable (PHImageRequestID) -> Void
+  ) async -> UIImage? {
+    await requestThumbnail(for: asset, targetSize: targetSize, onRequestID: onRequestID, onProgressiveUpdate: nil)
+  }
 }

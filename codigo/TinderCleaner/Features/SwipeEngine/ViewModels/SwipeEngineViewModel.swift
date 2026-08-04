@@ -31,7 +31,7 @@ public final class SwipeEngineViewModel {
 
   private let photoService: PhotoLibraryServiceProtocol
   private let persistenceService: SessionPersistenceServiceProtocol
-  public var displayTargetSize: CGSize = CGSize(width: 600, height: 800)
+  public var displayTargetSize: CGSize = CGSize(width: 1200, height: 1600)
 
   public init(
     assets: [AssetModel],
@@ -157,6 +157,14 @@ public final class SwipeEngineViewModel {
                 self.activeRequests[assetID] = requestID
               } else {
                 self.photoService.cancelImageRequest(requestID)
+              }
+            }
+          },
+          onProgressiveUpdate: { [weak self] highResImage in
+            Task { @MainActor [self] in
+              guard let self else { return }
+              if self.activeRequests[assetID] != nil || self.imageCache[assetID] != nil {
+                self.imageCache[assetID] = highResImage
               }
             }
           }

@@ -43,7 +43,8 @@ public final class FakePhotoLibraryService: PhotoLibraryServiceProtocol, @unchec
   public func requestThumbnail(
     for asset: AssetModel,
     targetSize: CGSize,
-    onRequestID: @Sendable (PHImageRequestID) -> Void
+    onRequestID: @Sendable (PHImageRequestID) -> Void,
+    onProgressiveUpdate: (@Sendable (UIImage) -> Void)? = nil
   ) async -> UIImage? {
     let reqID = nextRequestID
     nextRequestID += 1

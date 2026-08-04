@@ -53,11 +53,23 @@ struct CardView: View {
                   .padding(14)
                 }
             } else if let image {
-              Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+              ZStack {
+                // Blurred fill background for landscape / non-standard aspect ratio photos
+                Image(uiImage: image)
+                  .resizable()
+                  .scaledToFill()
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+                  .blur(radius: 25)
+                  .opacity(0.45)
+                  .clipped()
+
+                // Full photo scaled to fit cleanly without cropping any edges
+                Image(uiImage: image)
+                  .resizable()
+                  .scaledToFit()
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+                  .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 4)
+              }
             } else {
               Rectangle()
                 .fill(Color(uiColor: .tertiarySystemFill))
@@ -131,6 +143,13 @@ struct CardView: View {
     .offset(x: dragOffset.width, y: dragOffset.height)
     .onChange(of: playerItem) { _, newItem in
       setupPlayer(with: newItem)
+    }
+    .onChange(of: isTopCard) { _, newIsTopCard in
+      if newIsTopCard {
+        player?.play()
+      } else {
+        player?.pause()
+      }
     }
     .onAppear {
       if let playerItem {

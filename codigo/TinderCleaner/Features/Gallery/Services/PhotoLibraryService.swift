@@ -58,7 +58,8 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
   public func requestThumbnail(
     for asset: AssetModel,
     targetSize: CGSize,
-    onRequestID: @Sendable (PHImageRequestID) -> Void
+    onRequestID: @Sendable (PHImageRequestID) -> Void,
+    onProgressiveUpdate: (@Sendable (UIImage) -> Void)? = nil
   ) async -> UIImage? {
     let result = getOrFetchResult()
     guard let phAsset = fetchPHAsset(with: asset.id, in: result) else {
@@ -83,9 +84,18 @@ public final class PhotoLibraryService: NSObject, PhotoLibraryServiceProtocol, @
         ) { image, info in
           let isCancelled = (info?[PHImageCancelledKey] as? Bool) ?? false
           let isError = info?[PHImageErrorKey] != nil
+          let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
           
           if let image {
-            state.resumeOnce(continuation: continuation, image: image)
+            if isDegraded {
+              state.resumeOnce(continuation: continuation, image: image)
+            } else {
+              if state.hasAlreadyResumed {
+                onProgressiveUpdate?(image)
+              } else {
+                state.resumeOnce(continuation: continuation, image: image)
+              }
+            }
           } else if isCancelled || isError {
             state.resumeOnce(continuation: continuation, image: nil)
           }
@@ -261,6 +271,12 @@ private final class RequestState: @unchecked Sendable {
   private var requestID: PHImageRequestID?
   private var hasResumed = false
   private var storedContinuation: CheckedContinuation<UIImage?, Never>?
+
+  var hasAlreadyResumed: Bool {
+    lock.lock()
+    defer { lock.unlock() }
+    return hasResumed
+  }
 
   func setRequestID(_ id: PHImageRequestID) {
     lock.lock()
